@@ -190,8 +190,23 @@ def retrieve_documents(vectorstore: QdrantVectorStore, question: str, k: int = 6
 
     # ── Recherche produit par nom commercial ──────────────────────────────────
     if analysis["is_product_query"]:
-        docs = vectorstore.similarity_search(question, k=k)
-        add_docs(docs)
+        if analysis["product_name"]:
+            # Filtre sur le nom exact du produit pour ne pas dériver vers
+            # d'autres produits partageant une culture mentionnée dans la question
+            docs = vectorstore.similarity_search(
+                question,
+                k=k,
+                filter={"must": [{"key": "metadata.nom_produit",
+                                   "match": {"value": analysis["product_name"]}}]},
+            )
+            add_docs(docs)
+            # Compléter sans filtre si trop peu de résultats (ex: faute de frappe légère)
+            if len(all_docs) < 2:
+                docs_fallback = vectorstore.similarity_search(question, k=k)
+                add_docs(docs_fallback)
+        else:
+            docs = vectorstore.similarity_search(question, k=k)
+            add_docs(docs)
 
     # ── Fix 2 : réglementation → recherche hybride (2 formulations) ────────────
     if analysis["is_regulation_query"]:
@@ -243,7 +258,16 @@ def retrieve_documents(vectorstore: QdrantVectorStore, question: str, k: int = 6
         add_docs(docs_amm)
 
     # ── Fallback : recherche générale si toujours insuffisant ────────────────
-    if len(all_docs) < k:
+    # Ne s'applique que si au moins un type de requête a été détecté,
+    # pour éviter d'injecter des documents non pertinents sur des questions
+    # hors-domaine (salutations, questions sur l'azote, etc.)
+    any_type_detected = (
+        analysis["is_product_query"]
+        or analysis["is_regulation_query"]
+        or analysis["is_biocontrol_query"]
+        or analysis["is_substance_query"]
+    )
+    if any_type_detected and len(all_docs) < k:
         docs = vectorstore.similarity_search(question, k=k - len(all_docs))
         add_docs(docs)
 

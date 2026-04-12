@@ -1,3 +1,21 @@
+# ⚠️ Avertissement Important / Disclaimer
+
+**Ce projet est un prototype expérimental utilisant une technologie d'Intelligence Artificielle (RAG). Il n'est en aucun cas un outil de conseil réglementaire homologué.**
+
+### 1. Absence de garantie
+Les réponses fournies par ce chatbot sont générées automatiquement. Malgré l'utilisation de sources officielles (E-Phy, Légifrance), l'IA peut commettre des erreurs d'interprétation, omettre des mises à jour récentes ou produire des "hallucinations" (réponses factuellement fausses mais crédibles).
+
+### 2. Responsabilité de l'utilisateur
+L'utilisateur reste seul responsable de l'application des produits phytopharmaceutiques sur ses cultures. L'utilisation de cet outil ne dispense en aucun cas de la consultation :
+* De l'étiquette du produit (qui est l'unique document faisant foi).
+* Du site officiel [E-Phy (Anses)](https://www.anses.fr/).
+* Des textes de loi sur [Légifrance](https://www.legifrance.gouv.fr/).
+
+### 3. Usage strictement pédagogique
+Ce dépôt est une preuve de concept technique destinée à explorer les capacités des LLM dans le domaine agricole. **En aucun cas l'auteur de ce projet ne pourra être tenu responsable des dommages directs ou indirects (sanctions administratives, pertes de récoltes, dommages environnementaux) résultant de l'utilisation des informations fournies par ce chatbot.**
+
+---
+
 # LLM Phytosanitaire
 
 Assistant conversationnel local pour aider les agriculteurs à naviguer la réglementation phytosanitaire française. Fonctionne entièrement en local — aucune donnée envoyée vers une API externe.

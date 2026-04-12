@@ -1,0 +1,32 @@
+# ── Données ───────────────────────────────────────────────────────────────────
+# Aucun fichier de données versionné — voir README pour les sources
+Data/
+
+# Base vectorielle Qdrant — régénérable via `python -m src.ingestion.ingest`
+qdrant_storage/
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# ── Variables d'environnement ─────────────────────────────────────────────────
+.env
+.env.*
+
+# ── Claude Code ───────────────────────────────────────────────────────────────
+.claude/
+
+# ── Notes Obsidian ────────────────────────────────────────────────────────────
+LLM Phyto/

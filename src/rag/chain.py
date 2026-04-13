@@ -72,9 +72,9 @@ un objet JSON valide, sans texte autour, sans balises markdown.
 
 Champs à extraire :
 - "intent" : type de question parmi :
-    "usage_check"     → peut-on utiliser tel produit sur telle culture ?
-    "product_list"    → quels produits sont disponibles pour tel usage ou nuisible ?
-    "regulation"      → questions sur les règles, arrêtés, délais de rentrée, ZNT, obligations légales
+    "usage_check"     → peut-on utiliser tel produit sur telle culture ? OU quelle est la dose/ZNT/DAR d'un produit spécifique ?
+    "product_list"    → quels produits sont disponibles pour tel usage, nuisible, ou type de produit (fongicide, herbicide…) ?
+    "regulation"      → questions générales sur les règles, arrêtés, délais de rentrée, ZNT sans produit précis, obligations légales
     "substance_check" → une substance active est-elle approuvée en Europe ?
     "hors_domaine"    → salutation ou question sans rapport avec le phytosanitaire
 - "nuisible"    : ravageur ou maladie cible en minuscules (ex: "pucerons", "mildiou") ou null
@@ -83,19 +83,26 @@ Champs à extraire :
 - "amm"         : numéro AMM à 7 chiffres sous forme de chaîne ou null
 - "substance"   : molécule active en minuscules (ex: "fosétyl-aluminium") ou null
 - "biocontrole" : true si la question porte spécifiquement sur les produits de biocontrôle, false sinon
+- "type_produit": "fongicide", "herbicide", "insecticide", "acaricide" ou null si non mentionné
 
 Exemples :
 Question: "Puis-je utiliser l'ALIETTE FLASH sur des noyers ?"
-JSON: {{"intent": "usage_check", "nuisible": null, "culture": "noyer", "produit": "ALIETTE FLASH", "amm": null, "substance": null, "biocontrole": false}}
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": "noyer", "produit": "ALIETTE FLASH", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
+
+Question: "Quelle est la ZNT aquatique du DECIS PROTECH ?"
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "DECIS PROTECH", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
 
 Question: "Quels produits de biocontrôle sont autorisés contre les pucerons ?"
-JSON: {{"intent": "product_list", "nuisible": "pucerons", "culture": null, "produit": null, "amm": null, "substance": null, "biocontrole": true}}
+JSON: {{"intent": "product_list", "nuisible": "pucerons", "culture": null, "produit": null, "amm": null, "substance": null, "biocontrole": true, "type_produit": null}}
+
+Question: "Quels fongicides sont autorisés sur le colza ?"
+JSON: {{"intent": "product_list", "nuisible": null, "culture": "colza", "produit": null, "amm": null, "substance": null, "biocontrole": false, "type_produit": "fongicide"}}
 
 Question: "Quel est le délai de rentrée après un H319 ?"
-JSON: {{"intent": "regulation", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": null, "biocontrole": false}}
+JSON: {{"intent": "regulation", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
 
 Question: "Le Fosétyl-Al est-il approuvé en Europe ?"
-JSON: {{"intent": "substance_check", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": "fosétyl-al", "biocontrole": false}}
+JSON: {{"intent": "substance_check", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": "fosétyl-al", "biocontrole": false, "type_produit": null}}
 
 Question : {question}
 JSON :"""
@@ -157,7 +164,15 @@ def analyze_query_fallback(question: str) -> dict:
     ])
     is_specific_product = bool(amm) or bool(produit)
 
-    if is_regulation:
+    # ZNT/DAR/dose d'un produit précis → les valeurs sont dans les chunks AMM, pas dans l'arrêté.
+    # On distingue : "ZNT générale" (regulation) vs "ZNT du produit X" (usage_check).
+    product_value_query = is_regulation and is_specific_product and any(w in q for w in [
+        "znt", "dar", "délai avant récolte", "dose retenue", "dose maximale",
+    ])
+
+    if product_value_query:
+        intent = "usage_check"
+    elif is_regulation:
         intent = "regulation"
     elif is_substance:
         intent = "substance_check"
@@ -174,11 +189,25 @@ def analyze_query_fallback(question: str) -> dict:
     )
     nuisible = nuisible_match.group(1).strip() if nuisible_match else None
 
+    # Avec article : "sur le colza", "sur la vigne"
     culture_match = re.search(
         r"sur (?:les?|la|l') ?([a-zéèàâùî\s\-]+?)(?:\s*[?]|$|,|\s+contre\b)",
         q,
     )
+    # Sans article en fin de question : "autorisé sur blé ?", "utilisé sur pommier ?"
+    if not culture_match:
+        culture_match = re.search(
+            r"sur ([a-zéèàâùî\-]+)\s*[?]?$",
+            q,
+        )
     culture = culture_match.group(1).strip() if culture_match else None
+
+    # Pluriel géré par s? — "fongicides" → "fongicide"
+    type_produit_match = re.search(
+        r"\b(fongicides?|herbicides?|insecticides?|acaricides?|nématicides?|molluscicides?|rodenticides?)\b",
+        q,
+    )
+    type_produit = type_produit_match.group(1).rstrip("s") if type_produit_match else None
 
     return {
         "intent": intent,
@@ -188,6 +217,7 @@ def analyze_query_fallback(question: str) -> dict:
         "amm": amm,
         "substance": None,
         "biocontrole": biocontrole,
+        "type_produit": type_produit,
     }
 
 
@@ -250,16 +280,27 @@ def retrieve_by_entities(
 
     # ── Product list : "Quels produits pour X sur Y ?" ───────────────────────
     elif intent == "product_list":
+        type_produit = entities.get("type_produit")
+
         must = [
             {"key": "metadata.etat_usage", "match": {"value": "Autorisé"}},
             {"key": "metadata.source",     "match": {"value": "amm_xml"}},
         ]
-        # Query focalisée sur les entités extraites.
-        # La question complète ("Quels produits sont autorisés contre…") dilue l'embedding
-        # avec des mots généraux. On cherche avec "mildiou vigne" pour converger
-        # directement vers les bons chunks dans les 200k+ usages autorisés.
-        entity_parts = [p for p in [nuisible, culture] if p]
-        search_query = " ".join(entity_parts) if entity_parts else question
+        # Note : le champ <type-produit> du XML vaut toujours "PPP", pas "Fongicide"/"Herbicide".
+        # On ne peut donc pas filtrer sur type_produit en metadata.
+        # On l'intègre dans la query sémantique pour orienter l'embedding.
+
+        # Query formatée pour coller au texte des chunks AMM :
+        # "Le produit Z est autorisé sur Colza contre Sclerotinia par …"
+        # type_produit en préfixe oriente l'embedding vers les bons usages.
+        parts = []
+        if type_produit:
+            parts.append(type_produit)
+        if culture:
+            parts.append(f"autorisé sur {culture}")
+        if nuisible:
+            parts.append(f"contre {nuisible}")
+        search_query = " ".join(parts) if parts else question
 
         docs = vectorstore.similarity_search(search_query, k=k, filter={"must": must})
         add_docs(docs)

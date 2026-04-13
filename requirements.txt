@@ -3,6 +3,7 @@ langchain-community>=0.3
 langchain-ollama>=0.2
 langchain-qdrant>=0.1
 qdrant-client>=1.9
+fastembed>=0.3
 pdfplumber>=0.11
 openpyxl>=3.1
 python-dotenv>=1.0

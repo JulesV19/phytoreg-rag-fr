@@ -24,8 +24,9 @@ Assistant conversationnel local pour aider les agriculteurs à naviguer la régl
 
 | Brique | Rôle | Outil |
 |---|---|---|
-| Embedding | Texte → vecteur | Ollama + `mxbai-embed-large` |
-| Vector store | Stockage et recherche | Qdrant (Docker) |
+| Embedding dense | Texte → vecteur sémantique (1024 dims) | Ollama + `mxbai-embed-large` |
+| Embedding sparse | BM25 pour matching exact (termes techniques) | FastEmbed + `Qdrant/bm25` |
+| Vector store | Stockage et recherche hybride (dense + BM25) | Qdrant (Docker) |
 | LLM | Génération de réponse | Ollama + `mistral:7b` |
 | Framework | Orchestration | LangChain |
 
@@ -102,6 +103,17 @@ src/
 - **Arrêté du 4 mai 2017** — réglementation nationale. Un chunk par sous-paragraphe (Art. 3-I, Art. 3-II…)
 - **Note biocontrôle DGAL** — liste L.253-6. Un chunk par section + une ligne du tableau = un chunk
 - **Substances actives CE** — statuts d'approbation européens. Une substance = un chunk
+
+### Recherche hybride (dense + BM25)
+
+Chaque chunk est indexé avec deux vecteurs complémentaires :
+
+- **Dense** (`mxbai-embed-large`, 1024 dims) — similarité sémantique cosinus
+- **Sparse BM25** (`Qdrant/bm25` via FastEmbed) — matching exact sur les termes rares du domaine (numéros AMM, noms de produits, molécules)
+
+Le retriever route selon le type de question :
+- `usage_check`, `substance_check` → hybride dense + BM25 (RRF) — le matching exact est critique pour les numéros AMM et noms de produits
+- `product_list`, `regulation` → dense seul — la query sémantique focalisée suffit
 
 ### Embedding : préfixe de requête mxbai
 

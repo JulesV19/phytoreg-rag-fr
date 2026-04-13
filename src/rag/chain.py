@@ -12,13 +12,14 @@ Architecture :
 
 import json
 import re
+import time
 
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 from langchain_ollama import ChatOllama
-from langchain_qdrant import QdrantVectorStore
+from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 
 from src.embeddings import MxbaiEmbeddings
 from qdrant_client import QdrantClient
@@ -27,6 +28,27 @@ QDRANT_URL = "http://localhost:6333"
 COLLECTION_NAME = "phyto_docs"
 EMBEDDING_MODEL = "mxbai-embed-large"
 LLM_MODEL = "mistral:7b"
+SPARSE_VECTOR_NAME = "sparse"
+
+_OLLAMA_RETRIES = 3
+_OLLAMA_RETRY_DELAY = 1.5   # secondes entre deux tentatives
+
+
+def _call_with_retry(fn, retries: int = _OLLAMA_RETRIES, delay: float = _OLLAMA_RETRY_DELAY):
+    """
+    Exécute fn() et réessaie jusqu'à `retries` fois en cas d'exception.
+    Couvre les erreurs transitoires d'Ollama : connexion refusée, timeout, surcharge.
+    Lève la dernière exception si toutes les tentatives échouent.
+    """
+    last_exc: Exception | None = None
+    for attempt in range(retries):
+        try:
+            return fn()
+        except Exception as exc:
+            last_exc = exc
+            if attempt < retries - 1:
+                time.sleep(delay)
+    raise last_exc
 
 # ─── Prompt système ───────────────────────────────────────────────────────────
 
@@ -115,7 +137,7 @@ def parse_query_with_llm(question: str, parser_llm: ChatOllama) -> dict | None:
     """
     try:
         prompt = QUERY_PARSER_PROMPT.format(question=question)
-        response = parser_llm.invoke(prompt)
+        response = _call_with_retry(lambda: parser_llm.invoke(prompt))
         content = response.content.strip()
 
         # Extraire le JSON même si le LLM ajoute du texte ou des balises autour
@@ -224,7 +246,8 @@ def analyze_query_fallback(question: str) -> dict:
 # ─── Retriever par intent ─────────────────────────────────────────────────────
 
 def retrieve_by_entities(
-    vectorstore: QdrantVectorStore,
+    vs_hybrid: QdrantVectorStore,
+    vs_dense: QdrantVectorStore,
     question: str,
     entities: dict,
     k: int = 6,
@@ -237,6 +260,13 @@ def retrieve_by_entities(
     Les chunks AMM contiennent "contre Pucerons" en texte naturel, donc
     la similarité vectorielle suffit pour les discriminer une fois filtrés
     sur etat_usage=Autorisé.
+
+    Routage hybride (dense + sparse BM25) vs dense seul :
+    - usage_check, substance_check → hybride : le matching exact sur noms
+      de produits, numéros AMM et substances actives est critique.
+    - product_list, regulation → dense seul : la query sémantique focalisée
+      et la double reformulation suffisent ; le BM25 n'apporte pas de gain
+      sur des termes généraux comme "mildiou vigne" ou "délai de rentrée".
     """
     intent = entities.get("intent", "hors_domaine")
     nuisible = entities.get("nuisible")
@@ -261,6 +291,7 @@ def retrieve_by_entities(
         return []
 
     # ── Usage check : "Puis-je utiliser X sur Y ?" ───────────────────────────
+    # Hybride : le matching exact sur nom produit / numéro AMM est critique.
     elif intent == "usage_check":
         must_ok = [{"key": "metadata.etat_usage", "match": {"value": "Autorisé"}}]
         if amm:
@@ -268,17 +299,19 @@ def retrieve_by_entities(
         elif produit:
             must_ok.append({"key": "metadata.nom_produit", "match": {"value": produit}})
 
-        docs = vectorstore.similarity_search(question, k=k, filter={"must": must_ok})
+        docs = vs_hybrid.similarity_search(question, k=k, filter={"must": must_ok})
         add_docs(docs)
 
         # Fallback : si aucun usage autorisé → chercher tous états (produit retiré)
         if not all_docs and (amm or produit):
             must_all = [m for m in must_ok if "etat_usage" not in str(m)]
             if must_all:
-                docs = vectorstore.similarity_search(question, k=k, filter={"must": must_all})
+                docs = vs_hybrid.similarity_search(question, k=k, filter={"must": must_all})
                 add_docs(docs)
 
     # ── Product list : "Quels produits pour X sur Y ?" ───────────────────────
+    # Dense seul : la query focalisée sur les entités suffit, BM25 n'aide pas
+    # sur des termes généraux comme "mildiou vigne".
     elif intent == "product_list":
         type_produit = entities.get("type_produit")
 
@@ -302,46 +335,50 @@ def retrieve_by_entities(
             parts.append(f"contre {nuisible}")
         search_query = " ".join(parts) if parts else question
 
-        docs = vectorstore.similarity_search(search_query, k=k, filter={"must": must})
+        docs = vs_dense.similarity_search(search_query, k=k, filter={"must": must})
         add_docs(docs)
 
         # Fallback : si la query focalisée retourne trop peu, essayer la question complète
         if len(all_docs) < 2:
-            docs2 = vectorstore.similarity_search(question, k=k, filter={"must": must})
+            docs2 = vs_dense.similarity_search(question, k=k, filter={"must": must})
             add_docs(docs2)
 
         # Pour les questions biocontrôle : ajouter le contexte réglementaire (note DGAL)
         if biocontrole:
-            docs_bio = vectorstore.similarity_search(
+            docs_bio = vs_dense.similarity_search(
                 question, k=3,
                 filter={"must": [{"key": "metadata.type", "match": {"value": "biocontrole"}}]},
             )
             add_docs(docs_bio)
 
     # ── Réglementation : arrêté, ZNT, délais de rentrée ──────────────────────
+    # Dense seul : la double reformulation gère le gap abstrait/concret ;
+    # le BM25 sur des termes comme "délai" "heures" n'apporte pas de gain.
     elif intent == "regulation":
         filtre_arrete = {"must": [{"key": "metadata.source", "match": {"value": "arrete_2017"}}]}
 
         # Double reformulation pour maximiser le rappel sur des articles précis
-        docs1 = vectorstore.similarity_search(question, k=5, filter=filtre_arrete)
+        docs1 = vs_dense.similarity_search(question, k=5, filter=filtre_arrete)
         add_docs(docs1)
 
         query_concrete = question + " valeur durée heures article obligation"
-        docs2 = vectorstore.similarity_search(query_concrete, k=5, filter=filtre_arrete)
+        docs2 = vs_dense.similarity_search(query_concrete, k=5, filter=filtre_arrete)
         add_docs(docs2)
 
     # ── Substance active CE : approbation européenne ──────────────────────────
+    # Hybride : les noms de molécules (Fosétyl-Al, glyphosate) sont des termes
+    # rares que le BM25 retrouve exactement.
     elif intent == "substance_check":
         # Enrichir la requête avec le nom de la substance si extrait
         search_query = f"{substance} {question}" if substance else question
-        docs = vectorstore.similarity_search(
+        docs = vs_hybrid.similarity_search(
             search_query, k=5,
             filter={"must": [{"key": "metadata.type", "match": {"value": "substance_active"}}]},
         )
         add_docs(docs)
 
         # Compléter avec les usages AMM de cette substance dans la base nationale
-        docs_amm = vectorstore.similarity_search(
+        docs_amm = vs_hybrid.similarity_search(
             search_query, k=3,
             filter={"must": [{"key": "metadata.source", "match": {"value": "amm_xml"}}]},
         )
@@ -349,14 +386,15 @@ def retrieve_by_entities(
 
     # ── Fallback global si trop peu de résultats ──────────────────────────────
     if 0 < len(all_docs) < 2:
-        docs = vectorstore.similarity_search(question, k=k - len(all_docs))
+        docs = vs_dense.similarity_search(question, k=k - len(all_docs))
         add_docs(docs)
 
     return all_docs[:k]
 
 
 def retrieve_documents(
-    vectorstore: QdrantVectorStore,
+    vs_hybrid: QdrantVectorStore,
+    vs_dense: QdrantVectorStore,
     question: str,
     parser_llm: ChatOllama,
     k: int = 6,
@@ -370,7 +408,7 @@ def retrieve_documents(
     entities = parse_query_with_llm(question, parser_llm)
     if entities is None:
         entities = analyze_query_fallback(question)
-    return retrieve_by_entities(vectorstore, question, entities, k)
+    return retrieve_by_entities(vs_hybrid, vs_dense, question, entities, k)
 
 
 def format_context(docs: list[Document]) -> str:
@@ -400,14 +438,31 @@ _NO_CONTEXT_RESPONSE = (
 
 # ─── Composants LangChain ─────────────────────────────────────────────────────
 
-def build_vectorstore() -> QdrantVectorStore:
+def build_vectorstores() -> tuple[QdrantVectorStore, QdrantVectorStore]:
+    """
+    Retourne deux instances pointant sur la même collection :
+    - vs_hybrid : dense + sparse BM25 — pour usage_check et substance_check
+    - vs_dense  : dense seul — pour product_list et regulation
+    """
     client = QdrantClient(url=QDRANT_URL)
-    embeddings = MxbaiEmbeddings(model=EMBEDDING_MODEL)
-    return QdrantVectorStore(
+    dense_emb = MxbaiEmbeddings(model=EMBEDDING_MODEL)
+    sparse_emb = FastEmbedSparse(model_name="Qdrant/bm25")
+
+    vs_hybrid = QdrantVectorStore(
         client=client,
         collection_name=COLLECTION_NAME,
-        embedding=embeddings,
+        embedding=dense_emb,
+        sparse_embedding=sparse_emb,
+        retrieval_mode=RetrievalMode.HYBRID,
+        sparse_vector_name=SPARSE_VECTOR_NAME,
     )
+    vs_dense = QdrantVectorStore(
+        client=client,
+        collection_name=COLLECTION_NAME,
+        embedding=dense_emb,
+        retrieval_mode=RetrievalMode.DENSE,
+    )
+    return vs_hybrid, vs_dense
 
 
 def build_llm() -> ChatOllama:
@@ -431,7 +486,8 @@ def build_parser_llm() -> ChatOllama:
 # ─── Chaîne RAG principale ────────────────────────────────────────────────────
 
 def build_rag_chain(
-    vectorstore: QdrantVectorStore,
+    vs_hybrid: QdrantVectorStore,
+    vs_dense: QdrantVectorStore,
     llm: ChatOllama,
     parser_llm: ChatOllama,
 ):
@@ -441,7 +497,7 @@ def build_rag_chain(
     ])
 
     def retrieve_and_format(question: str) -> dict:
-        docs = retrieve_documents(vectorstore, question, parser_llm)
+        docs = retrieve_documents(vs_hybrid, vs_dense, question, parser_llm)
         return {
             "context": format_context(docs),
             "question": question,
@@ -463,10 +519,10 @@ class PhytoRAG:
     """Interface haut niveau pour interroger le RAG phytosanitaire."""
 
     def __init__(self):
-        self.vectorstore = build_vectorstore()
+        self.vs_hybrid, self.vs_dense = build_vectorstores()
         self.llm = build_llm()
         self.parser_llm = build_parser_llm()
-        self.chain = build_rag_chain(self.vectorstore, self.llm, self.parser_llm)
+        self.chain = build_rag_chain(self.vs_hybrid, self.vs_dense, self.llm, self.parser_llm)
 
     def ask(self, question: str) -> dict:
         """
@@ -477,7 +533,7 @@ class PhytoRAG:
                 "sources": list[dict],
             }
         """
-        docs = retrieve_documents(self.vectorstore, question, self.parser_llm)
+        docs = retrieve_documents(self.vs_hybrid, self.vs_dense, question, self.parser_llm)
 
         # Guard anti-hallucination : si aucun document trouvé, réponse standard sans LLM.
         # Mistral 7b ignore "Réponds UNIQUEMENT à partir du contexte" quand le contexte
@@ -490,8 +546,9 @@ class PhytoRAG:
             ("system", SYSTEM_PROMPT),
             ("human", HUMAN_PROMPT),
         ])
-        answer = (prompt | self.llm | StrOutputParser()).invoke(
-            {"context": context, "question": question}
+        chain_gen = prompt | self.llm | StrOutputParser()
+        answer = _call_with_retry(
+            lambda: chain_gen.invoke({"context": context, "question": question})
         )
         sources = [
             {
@@ -509,7 +566,7 @@ class PhytoRAG:
 
     def stream(self, question: str):
         """Génère la réponse en streaming."""
-        docs = retrieve_documents(self.vectorstore, question, self.parser_llm)
+        docs = retrieve_documents(self.vs_hybrid, self.vs_dense, question, self.parser_llm)
 
         # Même guard : pas de LLM si contexte vide
         if not docs:
@@ -522,4 +579,13 @@ class PhytoRAG:
             ("human", HUMAN_PROMPT),
         ])
         chain = prompt | self.llm | StrOutputParser()
-        yield from chain.stream({"context": context, "question": question})
+        last_exc: Exception | None = None
+        for attempt in range(_OLLAMA_RETRIES):
+            try:
+                yield from chain.stream({"context": context, "question": question})
+                return
+            except Exception as exc:
+                last_exc = exc
+                if attempt < _OLLAMA_RETRIES - 1:
+                    time.sleep(_OLLAMA_RETRY_DELAY)
+        raise last_exc

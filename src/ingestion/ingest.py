@@ -13,12 +13,12 @@ import sys
 from pathlib import Path
 
 from langchain_core.documents import Document
-from langchain_qdrant import QdrantVectorStore
+from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 
 from src.embeddings import MxbaiEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams
+from qdrant_client.models import Distance, SparseIndexParams, SparseVectorParams, VectorParams
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 
@@ -35,8 +35,9 @@ QDRANT_URL = "http://localhost:6333"
 COLLECTION_NAME = "phyto_docs"
 EMBEDDING_MODEL = "mxbai-embed-large"
 EMBEDDING_DIM = 1024  # dimension de mxbai-embed-large
-BATCH_SIZE = 64       # nombre de documents embeddés par lot
-MAX_CHUNK_CHARS = 1400  # mxbai-embed-large : fenêtre 512 tokens ≈ ~1500 chars
+BATCH_SIZE = 64           # nombre de documents embeddés par lot
+MAX_CHUNK_CHARS = 1400    # mxbai-embed-large : fenêtre 512 tokens ≈ ~1500 chars
+SPARSE_VECTOR_NAME = "sparse"  # nom du champ sparse dans la collection Qdrant
 
 # Splitter pour re-découper les chunks trop longs
 _splitter = RecursiveCharacterTextSplitter(
@@ -66,7 +67,7 @@ def _to_langchain_docs(chunk) -> list[Document]:
 
 
 def _init_collection(client: QdrantClient, reset: bool = False):
-    """Crée ou recrée la collection Qdrant."""
+    """Crée ou recrée la collection Qdrant avec vecteurs dense (cosine) + sparse (BM25)."""
     exists = any(c.name == COLLECTION_NAME for c in client.get_collections().collections)
     if exists and reset:
         client.delete_collection(COLLECTION_NAME)
@@ -76,8 +77,11 @@ def _init_collection(client: QdrantClient, reset: bool = False):
         client.create_collection(
             collection_name=COLLECTION_NAME,
             vectors_config=VectorParams(size=EMBEDDING_DIM, distance=Distance.COSINE),
+            sparse_vectors_config={
+                SPARSE_VECTOR_NAME: SparseVectorParams(index=SparseIndexParams()),
+            },
         )
-        console.print(f"[green]Collection '{COLLECTION_NAME}' créée.[/green]")
+        console.print(f"[green]Collection '{COLLECTION_NAME}' créée (dense + sparse BM25).[/green]")
     else:
         console.print(f"[cyan]Collection '{COLLECTION_NAME}' existante conservée.[/cyan]")
 
@@ -106,13 +110,17 @@ def run_ingestion(reset: bool = False):
 
     _init_collection(client, reset=reset)
 
-    # Embeddings Ollama avec préfixe de requête mxbai-embed-large
+    # Embeddings : dense (Ollama) + sparse BM25 (FastEmbed local, CPU)
     embeddings = MxbaiEmbeddings(model=EMBEDDING_MODEL)
+    sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
 
     vectorstore = QdrantVectorStore(
         client=client,
         collection_name=COLLECTION_NAME,
         embedding=embeddings,
+        sparse_embedding=sparse_embeddings,
+        retrieval_mode=RetrievalMode.HYBRID,
+        sparse_vector_name=SPARSE_VECTOR_NAME,
     )
 
     # ── 1. XML AMM (source principale, volumineuse) ──────────────────────────

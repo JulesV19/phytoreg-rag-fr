@@ -1,4 +1,4 @@
-# ⚠️ Avertissement Important / Disclaimer
+# ⚠️ Avertissement Important
 
 **Ce projet est un prototype expérimental utilisant une technologie d'Intelligence Artificielle (RAG). Il n'est en aucun cas un outil de conseil réglementaire homologué.**
 

@@ -206,7 +206,7 @@ def retrieve_by_entities(
     opère à l'intérieur de l'espace filtré pour gérer nuisible/culture.
     Les chunks AMM contiennent "contre Pucerons" en texte naturel, donc
     la similarité vectorielle suffit pour les discriminer une fois filtrés
-    sur etat_usage=Autorisation.
+    sur etat_usage=Autorisé.
     """
     intent = entities.get("intent", "hors_domaine")
     nuisible = entities.get("nuisible")
@@ -232,7 +232,7 @@ def retrieve_by_entities(
 
     # ── Usage check : "Puis-je utiliser X sur Y ?" ───────────────────────────
     elif intent == "usage_check":
-        must_ok = [{"key": "metadata.etat_usage", "match": {"value": "Autorisation"}}]
+        must_ok = [{"key": "metadata.etat_usage", "match": {"value": "Autorisé"}}]
         if amm:
             must_ok.append({"key": "metadata.numero_amm", "match": {"value": amm}})
         elif produit:
@@ -251,7 +251,7 @@ def retrieve_by_entities(
     # ── Product list : "Quels produits pour X sur Y ?" ───────────────────────
     elif intent == "product_list":
         must = [
-            {"key": "metadata.etat_usage", "match": {"value": "Autorisation"}},
+            {"key": "metadata.etat_usage", "match": {"value": "Autorisé"}},
             {"key": "metadata.source",     "match": {"value": "amm_xml"}},
         ]
         # Query focalisée sur les entités extraites.

@@ -83,6 +83,8 @@ python3 -m src.ingestion.ingest --only-bio     # réindexe uniquement la note bi
 python3 -m src.ingestion.ingest --only-arvalis  # réindexe uniquement les fiches ARVALIS
 ```
 
+> **Note** : L'embedding des fiches ARVALIS est encore en cours de développement.
+
 **3. Lancer le chatbot**
 ```bash
 python3 -m src.app.main              # streaming (défaut)

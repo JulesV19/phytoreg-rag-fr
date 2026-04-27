@@ -92,33 +92,43 @@ QUERY_PARSER_PROMPT = """\
 Tu es un extracteur d'entités phytosanitaires. Analyse la question et retourne UNIQUEMENT \
 un objet JSON valide, sans texte autour, sans balises markdown.
 
-Champs à extraire :
-- "intent" : type de question parmi :
-    "usage_check"     → peut-on utiliser tel produit sur telle culture ? OU quelle est la dose/ZNT/DAR d'un produit spécifique ?
-    "product_list"    → quels produits sont disponibles pour tel usage, nuisible, ou type de produit (fongicide, herbicide…) ?
-    "regulation"      → questions générales sur les règles, arrêtés, délais de rentrée, ZNT sans produit précis, obligations légales
-    "substance_check" → une substance active est-elle approuvée en Europe ?
-    "hors_domaine"    → salutation ou question sans rapport avec le phytosanitaire
+IMPORTANT : le champ "intent" doit être EXACTEMENT l'une de ces 5 valeurs, rien d'autre :
+  "usage_check"     → question sur un produit précis (autorisation, dose, ZNT, DAR, substance active, numéro AMM, statut)
+  "product_list"    → quels produits sont disponibles pour un usage, nuisible, culture, ou type (fongicide…)
+  "regulation"      → règles générales (arrêtés, délais de rentrée, ZNT globale, obligations) sans produit précis
+  "substance_check" → une substance active est-elle approuvée en Europe ?
+  "hors_domaine"    → salutation ou question sans rapport avec le phytosanitaire
+
+Autres champs :
 - "nuisible"    : ravageur ou maladie cible en minuscules (ex: "pucerons", "mildiou") ou null
 - "culture"     : plante hôte en minuscules (ex: "blé", "vigne", "noyer") ou null
 - "produit"     : nom commercial EN MAJUSCULES tel qu'il apparaît dans la question ou null
 - "amm"         : numéro AMM à 7 chiffres sous forme de chaîne ou null
 - "substance"   : molécule active en minuscules (ex: "fosétyl-aluminium") ou null
-- "biocontrole" : true si la question porte spécifiquement sur les produits de biocontrôle, false sinon
-- "type_produit": "fongicide", "herbicide", "insecticide", "acaricide" ou null si non mentionné
+- "biocontrole" : true si la question porte sur les produits de biocontrôle, false sinon (jamais null)
+- "type_produit": "fongicide", "herbicide", "insecticide", "acaricide" ou null
 
 Exemples :
 Question: "Puis-je utiliser l'ALIETTE FLASH sur des noyers ?"
 JSON: {{"intent": "usage_check", "nuisible": null, "culture": "noyer", "produit": "ALIETTE FLASH", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
 
-Question: "Quelle est la ZNT aquatique du DECIS PROTECH ?"
-JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "DECIS PROTECH", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
+Question: "Quel est le numéro AMM du produit AQ 10 ?"
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "AQ 10", "amm": null, "substance": null, "biocontrole": true, "type_produit": null}}
+
+Question: "Quelle est la substance active de SERENADE ASO ?"
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "SERENADE ASO", "amm": null, "substance": null, "biocontrole": true, "type_produit": null}}
+
+Question: "Quel est le statut du produit BOTANIGARD OD ?"
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "BOTANIGARD OD", "amm": null, "substance": null, "biocontrole": true, "type_produit": null}}
 
 Question: "Quels produits de biocontrôle sont autorisés contre les pucerons ?"
 JSON: {{"intent": "product_list", "nuisible": "pucerons", "culture": null, "produit": null, "amm": null, "substance": null, "biocontrole": true, "type_produit": null}}
 
+Question: "Selon le Code rural, quelles sont les catégories de produits de biocontrôle ?"
+JSON: {{"intent": "regulation", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": null, "biocontrole": true, "type_produit": null}}
+
 Question: "Quels fongicides sont autorisés sur le colza ?"
-JSON: {{"intent": "product_list", "nuisible": null, "culture": "colza", "produit": null, "amm": null, "substance": null, "biocontrole": false, "type_produit": "fongicide"}}
+JSON: {{"intent": "product_list", "nuisible": null, "culture": "colza", "produit": null, "amm": null, "substance": null, "biocontrole": false, "type_produit": "fongicide}}
 
 Question: "Quel est le délai de rentrée après un H319 ?"
 JSON: {{"intent": "regulation", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
@@ -126,8 +136,14 @@ JSON: {{"intent": "regulation", "nuisible": null, "culture": null, "produit": nu
 Question: "Le Fosétyl-Al est-il approuvé en Europe ?"
 JSON: {{"intent": "substance_check", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": "fosétyl-al", "biocontrole": false, "type_produit": null}}
 
+Question: "Quelle est la date d'expiration de l'approbation du 1-naphthylacetamide ?"
+JSON: {{"intent": "substance_check", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": "1-naphthylacetamide", "biocontrole": false, "type_produit": null}}
+
 Question : {question}
 JSON :"""
+
+
+_VALID_INTENTS = {"usage_check", "product_list", "regulation", "substance_check", "hors_domaine"}
 
 
 def parse_query_with_llm(question: str, parser_llm: ChatOllama) -> dict | None:
@@ -144,7 +160,7 @@ def parse_query_with_llm(question: str, parser_llm: ChatOllama) -> dict | None:
         json_match = re.search(r"\{[^{}]+\}", content, re.DOTALL)
         if json_match:
             parsed = json.loads(json_match.group())
-            if "intent" in parsed:
+            if parsed.get("intent") in _VALID_INTENTS:
                 return parsed
     except Exception:
         pass
@@ -167,7 +183,7 @@ def analyze_query_fallback(question: str) -> dict:
     produit = product_match.group(1).strip() if product_match else None
 
     has_molecule = bool(re.search(
-        r"\b\w+(?:ate|yl|ine|ène|ene|anol|nol|ium|ose|ide|Al)\b",
+        r"\b\w{3,}(?:ate|yl|ine|ène|ene|anol|nol|ium|amide)\b",
         question, re.IGNORECASE,
     ))
 
@@ -176,13 +192,19 @@ def analyze_query_fallback(question: str) -> dict:
         "substance naturelle", "liste l.253",
     ])
 
+    is_greeting = any(w in q for w in [
+        "bonjour", "bonsoir", "salut", "hello", "coucou", "comment vas", "comment ça va",
+    ])
+
     is_regulation = any(w in q for w in [
-        "arrêté", "délai de rentrée", "rentrée", "znt", "rinçage", "effluent",
+        "arrêté", "délai de rentrée", "rentrée", "znt", "rinçage", "rincer", "effluent",
         "stockage", "registre", "epi", "délai", "interdit", "obligation",
-        "règle", "fond de cuve", "vent", "beaufort",
+        "fond de cuve", "vent", "beaufort", "code rural", "l.253",
+        "caniveau", "avaloir",
     ])
     is_substance = has_molecule or any(w in q for w in [
-        "substance active", "approuvé", "approuvée", "europe", "efsa", "substitution",
+        "substance active", "substances actives", "approuvé", "approuvée",
+        "europ", "efsa", "substitution", "rapporteur", "rms", "état membre",
     ])
     is_specific_product = bool(amm) or bool(produit)
 
@@ -192,16 +214,31 @@ def analyze_query_fallback(question: str) -> dict:
         "znt", "dar", "délai avant récolte", "dose retenue", "dose maximale",
     ])
 
-    if product_value_query:
+    is_phyto = is_specific_product or is_regulation or is_substance or biocontrole or any(w in q for w in [
+        "produit", "traitement", "pulvéris", "pesticide", "phytosanitaire",
+        "fongicide", "herbicide", "insecticide", "ravageur", "nuisible",
+        "récolte", "usage", "autorisation", "amm",
+    ])
+
+    if is_greeting or not is_phyto:
+        intent = "hors_domaine"
+    elif product_value_query:
         intent = "usage_check"
     elif is_regulation:
         intent = "regulation"
-    elif is_substance:
-        intent = "substance_check"
     elif is_specific_product:
         intent = "usage_check"
+    elif is_substance:
+        intent = "substance_check"
     elif biocontrole:
-        intent = "product_list"
+        # Question sur un usage précis (nuisible/culture mentionné) → product_list
+        # Question conceptuelle sur le biocontrôle (catégories, critères, avantages) → regulation
+        has_usage_context = (
+            bool(produit) or bool(amm)
+            or bool(re.search(r"\bcontre\b", q))
+            or bool(re.search(r"\bsur (?:le|la|les|l')", q))
+        )
+        intent = "product_list" if has_usage_context else "regulation"
     else:
         intent = "product_list"
 
@@ -309,6 +346,16 @@ def retrieve_by_entities(
                 docs = vs_hybrid.similarity_search(question, k=k, filter={"must": must_all})
                 add_docs(docs)
 
+        # Produit nommé → chercher dans note_biocontrole avec la question complète (BM25 + dense).
+        # La question complète inclut des termes comme "EAJ", "jardins", "biologique" qui permettent
+        # de discriminer BELOUKHA GARDEN vs BELOUKHA et LIMOCIDE J vs LIMOCIDE.
+        if produit:
+            docs_bio = vs_hybrid.similarity_search(
+                question, k=3,
+                filter={"must": [{"key": "metadata.source", "match": {"value": "note_biocontrole"}}]},
+            )
+            add_docs(docs_bio)
+
     # ── Product list : "Quels produits pour X sur Y ?" ───────────────────────
     # Dense seul : la query focalisée sur les entités suffit, BM25 n'aide pas
     # sur des termes généraux comme "mildiou vigne".
@@ -335,54 +382,100 @@ def retrieve_by_entities(
             parts.append(f"contre {nuisible}")
         search_query = " ".join(parts) if parts else question
 
-        docs = vs_dense.similarity_search(search_query, k=k, filter={"must": must})
+        # Quand biocontrôle=True, réserver de la place pour note_biocontrole
+        k_amm = max(2, k // 2) if biocontrole else k
+        docs = vs_dense.similarity_search(search_query, k=k_amm, filter={"must": must})
         add_docs(docs)
 
         # Fallback : si la query focalisée retourne trop peu, essayer la question complète
         if len(all_docs) < 2:
-            docs2 = vs_dense.similarity_search(question, k=k, filter={"must": must})
+            docs2 = vs_dense.similarity_search(question, k=k_amm, filter={"must": must})
             add_docs(docs2)
 
-        # Pour les questions biocontrôle : ajouter le contexte réglementaire (note DGAL)
+        # biocontrôle=True → note DGAL prioritaire (texte réglementaire + produits)
         if biocontrole:
             docs_bio = vs_dense.similarity_search(
+                question, k=k - len(all_docs) + 3,
+                filter={"must": [{"key": "metadata.source", "match": {"value": "note_biocontrole"}}]},
+            )
+            add_docs(docs_bio)
+
+    # ── Réglementation : arrêté, ZNT, délais de rentrée ──────────────────────
+    # Hybride : les termes spécifiques de la question (ex: "24 heures", "sol gelé", "rizière")
+    # matchent exactement via BM25 les articles correspondants de l'arrêté.
+    elif intent == "regulation":
+        filtre_arrete = {"must": [{"key": "metadata.source", "match": {"value": "arrete_2017"}}]}
+
+        # Questions réglementaires sur le biocontrôle (Code rural, liste DGAL…) → note DGAL EN PREMIER
+        # Hybride pour que BM25 booste les termes spécifiques ("L.253-6", "macro-organismes"…).
+        if biocontrole:
+            docs_bio = vs_hybrid.similarity_search(
                 question, k=3,
                 filter={"must": [{"key": "metadata.type", "match": {"value": "biocontrole"}}]},
             )
             add_docs(docs_bio)
 
-    # ── Réglementation : arrêté, ZNT, délais de rentrée ──────────────────────
-    # Dense seul : la double reformulation gère le gap abstrait/concret ;
-    # le BM25 sur des termes comme "délai" "heures" n'apporte pas de gain.
-    elif intent == "regulation":
-        filtre_arrete = {"must": [{"key": "metadata.source", "match": {"value": "arrete_2017"}}]}
+        # Double reformulation hybride sur l'arrêté (slots restants après biocontrôle).
+        # docs1 prend k//2 pour laisser de la place à docs2 (reformulation concrète avec valeurs).
+        k_arrete = k - len(all_docs)
+        if k_arrete > 0:
+            docs1 = vs_hybrid.similarity_search(question, k=max(1, k_arrete // 2), filter=filtre_arrete)
+            add_docs(docs1)
+            query_concrete = question + " valeur durée heures article obligation"
+            docs2 = vs_hybrid.similarity_search(query_concrete, k=k_arrete, filter=filtre_arrete)
+            add_docs(docs2)
 
-        # Double reformulation pour maximiser le rappel sur des articles précis
-        docs1 = vs_dense.similarity_search(question, k=5, filter=filtre_arrete)
-        add_docs(docs1)
-
-        query_concrete = question + " valeur durée heures article obligation"
-        docs2 = vs_dense.similarity_search(query_concrete, k=5, filter=filtre_arrete)
-        add_docs(docs2)
+        # Produit nommé dans une question réglementaire → chercher dans note_biocontrole par BM25
+        if produit:
+            docs_bio = vs_hybrid.similarity_search(
+                produit, k=3,
+                filter={"must": [{"key": "metadata.source", "match": {"value": "note_biocontrole"}}]},
+            )
+            add_docs(docs_bio)
 
     # ── Substance active CE : approbation européenne ──────────────────────────
     # Hybride : les noms de molécules (Fosétyl-Al, glyphosate) sont des termes
     # rares que le BM25 retrouve exactement.
     elif intent == "substance_check":
-        # Enrichir la requête avec le nom de la substance si extrait
         search_query = f"{substance} {question}" if substance else question
-        docs = vs_hybrid.similarity_search(
-            search_query, k=5,
-            filter={"must": [{"key": "metadata.type", "match": {"value": "substance_active"}}]},
-        )
-        add_docs(docs)
 
-        # Compléter avec les usages AMM de cette substance dans la base nationale
-        docs_amm = vs_hybrid.similarity_search(
-            search_query, k=3,
-            filter={"must": [{"key": "metadata.source", "match": {"value": "amm_xml"}}]},
-        )
-        add_docs(docs_amm)
+        if produit:
+            # "Quelle est la substance active du produit X ?" → note_biocontrole EN PREMIER par BM25
+            docs_bio = vs_hybrid.similarity_search(
+                produit, k=3,
+                filter={"must": [{"key": "metadata.source", "match": {"value": "note_biocontrole"}}]},
+            )
+            add_docs(docs_bio)
+            docs = vs_hybrid.similarity_search(
+                search_query, k=k - len(all_docs),
+                filter={"must": [{"key": "metadata.type", "match": {"value": "substance_active"}}]},
+            )
+            add_docs(docs)
+        elif biocontrole:
+            # "substance candidate à la substitution peut-il figurer sur la liste biocontrole ?"
+            # → note_biocontrole EN PREMIER pour éviter l'épuisement des slots par substances_actives
+            docs_bio = vs_hybrid.similarity_search(
+                question, k=3,
+                filter={"must": [{"key": "metadata.source", "match": {"value": "note_biocontrole"}}]},
+            )
+            add_docs(docs_bio)
+            docs = vs_hybrid.similarity_search(
+                search_query, k=k - len(all_docs),
+                filter={"must": [{"key": "metadata.type", "match": {"value": "substance_active"}}]},
+            )
+            add_docs(docs)
+        else:
+            # Question pure sur substance européenne (S1-S5 type)
+            docs = vs_hybrid.similarity_search(
+                search_query, k=5,
+                filter={"must": [{"key": "metadata.type", "match": {"value": "substance_active"}}]},
+            )
+            add_docs(docs)
+            docs_amm = vs_hybrid.similarity_search(
+                search_query, k=3,
+                filter={"must": [{"key": "metadata.source", "match": {"value": "amm_xml"}}]},
+            )
+            add_docs(docs_amm)
 
     # ── Fallback global si trop peu de résultats ──────────────────────────────
     if 0 < len(all_docs) < 2:
@@ -444,7 +537,7 @@ def build_vectorstores() -> tuple[QdrantVectorStore, QdrantVectorStore]:
     - vs_hybrid : dense + sparse BM25 — pour usage_check et substance_check
     - vs_dense  : dense seul — pour product_list et regulation
     """
-    client = QdrantClient(url=QDRANT_URL)
+    client = QdrantClient(url=QDRANT_URL, timeout=60)
     dense_emb = MxbaiEmbeddings(model=EMBEDDING_MODEL)
     sparse_emb = FastEmbedSparse(model_name="Qdrant/bm25")
 

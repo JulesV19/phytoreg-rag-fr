@@ -63,6 +63,10 @@ mkdir Data
 | `2026-168_final (1).pdf` | [DGAL](https://info.agriculture.gouv.fr) | ~700 KB |
 | `ActiveSubstanceExport_11-04-2026.xlsx` | [Pesticides DB CE](https://ec.europa.eu/food/plant/pesticides/eu-pesticides-database) | ~230 KB |
 | `decisionamm-intrant-format-xml-*/` | [data.gouv.fr](https://www.data.gouv.fr/fr/datasets/decisions-damm-intrant/) | ~120 MB |
+| `arvalis_pdfs/produits/` | [ARVALIS](https://www.arvalis.fr) — fiches produits | variable |
+| `arvalis_pdfs/varietes/` | ARVALIS — fiches variétés | variable |
+| `arvalis_pdfs/fertilisants/` | ARVALIS — fiches fertilisants | variable |
+| `arvalis_pdfs/couverts/` | ARVALIS — fiches couverts végétaux | variable |
 
 ## Utilisation
 
@@ -73,8 +77,10 @@ docker compose up -d
 
 **2. Ingestion des données** (Environ 1h sur Mac, CPU local)
 ```bash
-python3 -m src.ingestion.ingest
-# Depuis zéro : python3 -m src.ingestion.ingest --reset
+python3 -m src.ingestion.ingest              # ingestion complète
+python3 -m src.ingestion.ingest --reset       # supprime la collection et réingère tout
+python3 -m src.ingestion.ingest --only-bio     # réindexe uniquement la note biocontrôle
+python3 -m src.ingestion.ingest --only-arvalis  # réindexe uniquement les fiches ARVALIS
 ```
 
 **3. Lancer le chatbot**
@@ -91,7 +97,7 @@ src/
 ├── ingestion/
 │   ├── ingest.py          ← Pipeline principal
 │   ├── parse_xml.py       ← XML AMM en streaming (iterparse)
-│   ├── parse_pdfs.py      ← Arrêté 2017, note biocontrôle
+│   ├── parse_pdfs.py      ← Arrêté 2017, note biocontrôle, fiches ARVALIS
 │   └── parse_xlsx.py      ← Substances actives CE
 └── rag/
     └── chain.py           ← Query analyzer + retriever hybride + LLM
@@ -103,6 +109,7 @@ src/
 - **Arrêté du 4 mai 2017** — réglementation nationale. Un chunk par sous-paragraphe (Art. 3-I, Art. 3-II…)
 - **Note biocontrôle DGAL** — liste L.253-6. Un chunk par section + une ligne du tableau = un chunk
 - **Substances actives CE** — statuts d'approbation européens. Une substance = un chunk
+- **Fiches ARVALIS** — produits, variétés, fertilisants et couverts végétaux. Parsées depuis les PDFs du dossier `Data/arvalis_pdfs/`
 
 ### Recherche hybride (dense + BM25)
 

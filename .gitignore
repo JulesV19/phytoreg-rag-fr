@@ -33,3 +33,10 @@ LLM Phyto/
 
 # ── Claude Code ───────────────────────────────────────────────────────────────
 CLAUDE.md
+
+# ── Tests — garder uniquement benchmark.py et cases.json ─────────────────────
+tests/debug_*.json
+tests/report_*.json
+tests/debug_parser.py
+tests/debug_retriever.py
+tests/validate_biocontrole_parser.py

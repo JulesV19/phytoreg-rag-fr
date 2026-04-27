@@ -1,0 +1,632 @@
+[
+  {
+    "id": "R1",
+    "category": "regulation",
+    "question": "Quel est le délai de rentrée standard après un traitement phytosanitaire ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["6 heures", "8 heures"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R2",
+    "category": "regulation",
+    "question": "Dans quels cas le délai de rentrée est-il allongé à 24 ou 48 heures ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["24", "48", "H31"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R3",
+    "category": "regulation",
+    "question": "Est-il possible de réduire le délai de rentrée en cas de besoin impérieux ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["cabine"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R4",
+    "category": "regulation",
+    "question": "À quelle distance minimale d'un point d'eau est-il autorisé de rincer son pulvérisateur ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["50"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R5",
+    "category": "regulation",
+    "question": "Quelle est la ZNT par défaut si aucune n'est précisée sur l'AMM d'un produit ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["5"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R6",
+    "category": "regulation",
+    "question": "Quelle est la vitesse maximale du vent autorisée pour pulvériser un produit phytopharmaceutique ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["Beaufort", "3"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R7",
+    "category": "regulation",
+    "question": "Sauf indication contraire sur l'étiquette, quel est le délai par défaut à respecter entre le traitement et la récolte ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["3 jours"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R8",
+    "category": "regulation",
+    "question": "Comment un agriculteur doit-il légalement gérer un fond de cuve après un traitement ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["5 fois", "parcelle"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R9",
+    "category": "regulation",
+    "question": "Est-il autorisé d'épandre des effluents phytopharmaceutiques sur sol gelé ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["épandage", "effluents"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R10",
+    "category": "regulation",
+    "question": "Comment doivent être éliminés les déchets solides non épandables issus du traitement des effluents ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["effluents"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R11",
+    "category": "regulation",
+    "question": "Est-il permis d'appliquer un produit phytopharmaceutique directement sur un caniveau ou un avaloir ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["interdit"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R12",
+    "category": "regulation",
+    "question": "Quelles sont les conditions pour réduire une ZNT de 20 mètres à 5 mètres ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["5 mètres"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R13",
+    "category": "regulation",
+    "question": "L'obligation de respecter une ZNT de 5 mètres s'applique-t-elle aux traitements des rizières ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["arrete_2017"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["dérogation", "rizière"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B1",
+    "category": "biocontrole",
+    "question": "Selon le Code rural, quelles sont les grandes catégories de produits de biocontrôle ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["macro-organismes", "phéromone"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B2",
+    "category": "biocontrole",
+    "question": "À quelle fréquence le Ministère actualise-t-il la liste officielle des produits de biocontrôle ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["mensuel"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B3",
+    "category": "biocontrole",
+    "question": "Quel est le numéro d'AMM officiel du produit AQ 10 ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["2100207"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B4",
+    "category": "biocontrole",
+    "question": "Quelle est la substance active du produit SERENADE ASO ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["Bacillus subtilis"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B5",
+    "category": "biocontrole",
+    "question": "Un piège à insectes contenant un insecticide de synthèse peut-il être classé produit de biocontrôle ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["phéromone"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B6",
+    "category": "biocontrole",
+    "question": "Un produit contenant une substance candidate à la substitution peut-il figurer sur la liste de biocontrôle ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["substitution"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B7",
+    "category": "biocontrole",
+    "question": "Un produit toxique pour la reproduction (H360) peut-il être reconnu comme produit de biocontrôle ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["H360"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B8",
+    "category": "biocontrole",
+    "question": "Quels sont les avantages des produits de biocontrôle vis-à-vis des distances de sécurité près des zones habitées ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["exemption"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B9",
+    "category": "biocontrole",
+    "question": "Les produits de biocontrôle doivent-ils être comptabilisés dans les obligations des CEPP ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["CEPP"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B10",
+    "category": "biocontrole",
+    "question": "Quel est le statut actuel du produit BOTANIGARD OD et jusqu'à quand est-il utilisable ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["retrait", "2026"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B11",
+    "category": "biocontrole",
+    "question": "Jusqu'à quelle date le piège VIO-TRAP peut-il être utilisé ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["2026"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B12",
+    "category": "biocontrole",
+    "question": "Sous quel nom commercial le produit ASPERELLO T34 Biocontrol est-il désormais référencé ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["ASPERELLO BIOCONTROL"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B13",
+    "category": "biocontrole",
+    "question": "Quelle est la substance active du produit FERRAMOL ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["phosphate ferrique"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B14",
+    "category": "biocontrole",
+    "question": "Le désherbant BELOUKHA est-il autorisé pour un emploi dans les jardins (EAJ) ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["GARDEN", "EAJ"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "B15",
+    "category": "biocontrole",
+    "question": "Le produit LIMOCIDE J est-il autorisé en production biologique ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["note_biocontrole"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["biologique"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "S1",
+    "category": "substance_check",
+    "question": "Le 1-decanol est-il approuvé au niveau européen ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["substances_actives_xlsx"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["Approved"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "S2",
+    "category": "substance_check",
+    "question": "Quel règlement européen encadre l'approbation des substances actives phytosanitaires ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["substances_actives_xlsx"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["540/2011"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "S3",
+    "category": "substance_check",
+    "question": "Qu'est-ce que le RMS dans la base des substances actives européennes ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["substances_actives_xlsx"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["substance active"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "S4",
+    "category": "substance_check",
+    "question": "Quelle est la date d'expiration de l'approbation du 1-naphthylacetamide ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["substances_actives_xlsx"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["2029"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "S5",
+    "category": "substance_check",
+    "question": "Quel pays a été l'État membre rapporteur pour l'évaluation du 1-naphthylacetic acid ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["substances_actives_xlsx"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["1-Naphthylacetic acid"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "A1",
+    "category": "amm_xml",
+    "question": "Le PROSARO est-il autorisé contre la septoriose sur le blé ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["amm_xml"],
+      "amm": "2100108"
+    },
+    "answer": {
+      "must_contain": ["Autorisé", "35"],
+      "must_not_contain": ["Retrait", "retiré"]
+    }
+  },
+  {
+    "id": "A2",
+    "category": "amm_xml",
+    "question": "L'ALIETTE FLASH est-il autorisé sur les fraisiers contre le mildiou ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["amm_xml"],
+      "amm": "9600025"
+    },
+    "answer": {
+      "must_contain": ["Autorisé"],
+      "must_not_contain": ["Retrait", "retiré"]
+    }
+  },
+  {
+    "id": "A3",
+    "category": "amm_xml",
+    "question": "Quelle est la ZNT aquatique du DECIS PROTECH sur maïs doux ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["amm_xml"],
+      "amm": "2010023"
+    },
+    "answer": {
+      "must_contain": ["20"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "A4",
+    "category": "amm_xml",
+    "question": "Le CENTURION R est-il autorisé sur les légumineuses fourragères ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["amm_xml"],
+      "amm": "9900115"
+    },
+    "answer": {
+      "must_contain": ["CENTURION"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "A5",
+    "category": "amm_xml",
+    "question": "L'ALIETTE FLASH est-il autorisé sur les noyers ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["amm_xml"],
+      "amm": "9600025"
+    },
+    "answer": {
+      "must_contain": [],
+      "must_not_contain": ["noyer"]
+    }
+  },
+  {
+    "id": "A6",
+    "category": "amm_xml",
+    "question": "Quels produits sont autorisés contre la septoriose sur le blé ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["amm_xml"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": ["PROSARO"],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "A7",
+    "category": "amm_xml",
+    "question": "Quels produits sont autorisés contre le mildiou sur la vigne ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": ["amm_xml"],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "H1",
+    "category": "hors_domaine",
+    "question": "Bonjour, comment vas-tu ?",
+    "retrieval": {
+      "min_sources": 0,
+      "max_sources": 0,
+      "source_types": [],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [],
+      "must_not_contain": ["AMM", "Autorisé", "arrêté"]
+    }
+  },
+  {
+    "id": "H2",
+    "category": "hors_domaine",
+    "question": "Quelle est la capitale de la France ?",
+    "retrieval": {
+      "min_sources": 0,
+      "max_sources": 0,
+      "source_types": [],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [],
+      "must_not_contain": ["AMM", "Autorisé", "arrêté"]
+    }
+  }
+]

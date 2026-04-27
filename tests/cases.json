@@ -6,11 +6,16 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["6 heures", "8 heures"],
+      "must_contain": [
+        "6 heures",
+        "8 heures"
+      ],
       "must_not_contain": []
     }
   },
@@ -21,11 +26,17 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["24", "48", "H31"],
+      "must_contain": [
+        "24",
+        "48",
+        "H31"
+      ],
       "must_not_contain": []
     }
   },
@@ -36,11 +47,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["cabine"],
+      "must_contain": [
+        "cabine"
+      ],
       "must_not_contain": []
     }
   },
@@ -51,11 +66,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["50"],
+      "must_contain": [
+        "50"
+      ],
       "must_not_contain": []
     }
   },
@@ -66,11 +85,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["5"],
+      "must_contain": [
+        "5"
+      ],
       "must_not_contain": []
     }
   },
@@ -81,11 +104,16 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["Beaufort", "3"],
+      "must_contain": [
+        "Beaufort",
+        "3"
+      ],
       "must_not_contain": []
     }
   },
@@ -96,11 +124,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["3 jours"],
+      "must_contain": [
+        "3 jours"
+      ],
       "must_not_contain": []
     }
   },
@@ -111,11 +143,16 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["5 fois", "parcelle"],
+      "must_contain": [
+        "5 fois",
+        "parcelle"
+      ],
       "must_not_contain": []
     }
   },
@@ -126,11 +163,16 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["épandage", "effluents"],
+      "must_contain": [
+        "épandage",
+        "effluents"
+      ],
       "must_not_contain": []
     }
   },
@@ -141,11 +183,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["effluents"],
+      "must_contain": [
+        "effluents"
+      ],
       "must_not_contain": []
     }
   },
@@ -156,11 +202,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["interdit"],
+      "must_contain": [
+        "interdit"
+      ],
       "must_not_contain": []
     }
   },
@@ -171,11 +221,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["5 mètres"],
+      "must_contain": [
+        "5 mètres"
+      ],
       "must_not_contain": []
     }
   },
@@ -186,11 +240,111 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["arrete_2017"],
+      "source_types": [
+        "arrete_2017"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["dérogation", "rizière"],
+      "must_contain": [
+        "dérogation",
+        "rizière"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R14",
+    "category": "regulation",
+    "question": "À quelle distance des habitations est-il interdit de stocker des produits phytopharmaceutiques ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arrete_2017"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "stock"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R15",
+    "category": "regulation",
+    "question": "Quels types d'équipements de protection individuelle sont requis lors de l'application de produits phytopharmaceutiques ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arrete_2017"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "protection"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R16",
+    "category": "regulation",
+    "question": "Quelle est la réglementation concernant le mélange de produits phytopharmaceutiques dans la cuve ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arrete_2017"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "mélange"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R17",
+    "category": "regulation",
+    "question": "Quelles obligations de formation s'appliquent aux utilisateurs professionnels de produits phytopharmaceutiques ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arrete_2017"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "Certiphyto"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "R18",
+    "category": "regulation",
+    "question": "Comment doit-on gérer les emballages vides de produits phytopharmaceutiques ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arrete_2017"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "emballage"
+      ],
       "must_not_contain": []
     }
   },
@@ -201,11 +355,16 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["macro-organismes", "phéromone"],
+      "must_contain": [
+        "macro-organismes",
+        "phéromone"
+      ],
       "must_not_contain": []
     }
   },
@@ -216,11 +375,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["mensuel"],
+      "must_contain": [
+        "mensuel"
+      ],
       "must_not_contain": []
     }
   },
@@ -231,11 +394,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["2100207"],
+      "must_contain": [
+        "2100207"
+      ],
       "must_not_contain": []
     }
   },
@@ -246,11 +413,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["Bacillus subtilis"],
+      "must_contain": [
+        "Bacillus subtilis"
+      ],
       "must_not_contain": []
     }
   },
@@ -261,11 +432,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["phéromone"],
+      "must_contain": [
+        "phéromone"
+      ],
       "must_not_contain": []
     }
   },
@@ -276,11 +451,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["substitution"],
+      "must_contain": [
+        "substitution"
+      ],
       "must_not_contain": []
     }
   },
@@ -291,11 +470,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["H360"],
+      "must_contain": [
+        "H360"
+      ],
       "must_not_contain": []
     }
   },
@@ -306,11 +489,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["exemption"],
+      "must_contain": [
+        "exemption"
+      ],
       "must_not_contain": []
     }
   },
@@ -321,11 +508,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["CEPP"],
+      "must_contain": [
+        "CEPP"
+      ],
       "must_not_contain": []
     }
   },
@@ -336,11 +527,16 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["retrait", "2026"],
+      "must_contain": [
+        "retrait",
+        "2026"
+      ],
       "must_not_contain": []
     }
   },
@@ -351,11 +547,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["2026"],
+      "must_contain": [
+        "2026"
+      ],
       "must_not_contain": []
     }
   },
@@ -366,11 +566,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["ASPERELLO BIOCONTROL"],
+      "must_contain": [
+        "ASPERELLO BIOCONTROL"
+      ],
       "must_not_contain": []
     }
   },
@@ -381,11 +585,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["phosphate ferrique"],
+      "must_contain": [
+        "phosphate ferrique"
+      ],
       "must_not_contain": []
     }
   },
@@ -396,11 +604,16 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["GARDEN", "EAJ"],
+      "must_contain": [
+        "GARDEN",
+        "EAJ"
+      ],
       "must_not_contain": []
     }
   },
@@ -411,11 +624,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["note_biocontrole"],
+      "source_types": [
+        "note_biocontrole"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["biologique"],
+      "must_contain": [
+        "biologique"
+      ],
       "must_not_contain": []
     }
   },
@@ -426,11 +643,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["substances_actives_xlsx"],
+      "source_types": [
+        "substances_actives_xlsx"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["Approved"],
+      "must_contain": [
+        "Approved"
+      ],
       "must_not_contain": []
     }
   },
@@ -441,11 +662,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["substances_actives_xlsx"],
+      "source_types": [
+        "substances_actives_xlsx"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["540/2011"],
+      "must_contain": [
+        "540/2011"
+      ],
       "must_not_contain": []
     }
   },
@@ -456,11 +681,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["substances_actives_xlsx"],
+      "source_types": [
+        "substances_actives_xlsx"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["substance active"],
+      "must_contain": [
+        "substance active"
+      ],
       "must_not_contain": []
     }
   },
@@ -471,11 +700,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["substances_actives_xlsx"],
+      "source_types": [
+        "substances_actives_xlsx"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["2029"],
+      "must_contain": [
+        "2029"
+      ],
       "must_not_contain": []
     }
   },
@@ -486,11 +719,72 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["substances_actives_xlsx"],
+      "source_types": [
+        "substances_actives_xlsx"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["1-Naphthylacetic acid"],
+      "must_contain": [
+        "1-Naphthylacetic acid"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "S6",
+    "category": "substance_check",
+    "question": "Le glyphosate est-il actuellement approuvé au niveau européen ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "substances_actives_xlsx"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "glyphosate"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "S7",
+    "category": "substance_check",
+    "question": "Quelle est la catégorie du 1-decanol dans la base des substances actives ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "substances_actives_xlsx"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "1-decanol"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "S8",
+    "category": "substance_check",
+    "question": "Le cuivre est-il une substance active approuvée en Europe pour les produits phytosanitaires ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "substances_actives_xlsx"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "cuivre"
+      ],
       "must_not_contain": []
     }
   },
@@ -501,12 +795,20 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["amm_xml"],
+      "source_types": [
+        "amm_xml"
+      ],
       "amm": "2100108"
     },
     "answer": {
-      "must_contain": ["Autorisé", "35"],
-      "must_not_contain": ["Retrait", "retiré"]
+      "must_contain": [
+        "Autorisé",
+        "35"
+      ],
+      "must_not_contain": [
+        "Retrait",
+        "retiré"
+      ]
     }
   },
   {
@@ -516,12 +818,19 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["amm_xml"],
+      "source_types": [
+        "amm_xml"
+      ],
       "amm": "9600025"
     },
     "answer": {
-      "must_contain": ["Autorisé"],
-      "must_not_contain": ["Retrait", "retiré"]
+      "must_contain": [
+        "Autorisé"
+      ],
+      "must_not_contain": [
+        "Retrait",
+        "retiré"
+      ]
     }
   },
   {
@@ -531,11 +840,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["amm_xml"],
+      "source_types": [
+        "amm_xml"
+      ],
       "amm": "2010023"
     },
     "answer": {
-      "must_contain": ["20"],
+      "must_contain": [
+        "20"
+      ],
       "must_not_contain": []
     }
   },
@@ -546,11 +859,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["amm_xml"],
+      "source_types": [
+        "amm_xml"
+      ],
       "amm": "9900115"
     },
     "answer": {
-      "must_contain": ["CENTURION"],
+      "must_contain": [
+        "CENTURION"
+      ],
       "must_not_contain": []
     }
   },
@@ -561,12 +878,16 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["amm_xml"],
+      "source_types": [
+        "amm_xml"
+      ],
       "amm": "9600025"
     },
     "answer": {
       "must_contain": [],
-      "must_not_contain": ["noyer"]
+      "must_not_contain": [
+        "noyer"
+      ]
     }
   },
   {
@@ -576,11 +897,15 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["amm_xml"],
+      "source_types": [
+        "amm_xml"
+      ],
       "amm": null
     },
     "answer": {
-      "must_contain": ["PROSARO"],
+      "must_contain": [
+        "PROSARO"
+      ],
       "must_not_contain": []
     }
   },
@@ -591,11 +916,547 @@
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
-      "source_types": ["amm_xml"],
+      "source_types": [
+        "amm_xml"
+      ],
       "amm": null
     },
     "answer": {
       "must_contain": [],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "A8",
+    "category": "amm_xml",
+    "question": "Quelle est la dose maximale autorisée du PROSARO sur blé ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "amm_xml"
+      ],
+      "amm": "2100108"
+    },
+    "answer": {
+      "must_contain": [
+        "PROSARO"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "A9",
+    "category": "amm_xml",
+    "question": "Combien d'applications maximum du DECIS PROTECH sont autorisées par campagne sur maïs ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "amm_xml"
+      ],
+      "amm": "2010023"
+    },
+    "answer": {
+      "must_contain": [
+        "DECIS"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "A10",
+    "category": "amm_xml",
+    "question": "Quel est le DAR (délai avant récolte) du PROSARO sur blé ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "amm_xml"
+      ],
+      "amm": "2100108"
+    },
+    "answer": {
+      "must_contain": [
+        "35"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "A11",
+    "category": "amm_xml",
+    "question": "Quelles sont les substances actives du DECIS PROTECH ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "amm_xml"
+      ],
+      "amm": "2010023"
+    },
+    "answer": {
+      "must_contain": [
+        "deltaméthrine"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "A12",
+    "category": "amm_xml",
+    "question": "Le CENTURION R est-il utilisable contre les graminées adventices ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "amm_xml"
+      ],
+      "amm": "9900115"
+    },
+    "answer": {
+      "must_contain": [
+        "graminée"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP1",
+    "category": "arvalis_produits",
+    "question": "Quelle est la matière active du fongicide ELATUS PLUS selon ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "Benzovindiflupyr"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP2",
+    "category": "arvalis_produits",
+    "question": "Quelle est la dose homologuée du ELATUS PLUS contre la septoriose sur blé ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "0.75"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP3",
+    "category": "arvalis_produits",
+    "question": "Le REVYSTAR XL est-il autorisé contre le piétin verse sur blé selon ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "non autorisé"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP4",
+    "category": "arvalis_produits",
+    "question": "Quelles sont les matières actives du LIBRAX selon la fiche ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "Fluxapyroxad",
+        "Metconazole"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP5",
+    "category": "arvalis_produits",
+    "question": "Quel est le délai avant récolte (DAR) du PROSARO XPERT sur blé d'après ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "35 jours"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP6",
+    "category": "arvalis_produits",
+    "question": "Le PROSARO XPERT est-il utilisable en agriculture biologique ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "Non utilisable en AB"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP7",
+    "category": "arvalis_produits",
+    "question": "Quel est le délai de rentrée du fongicide AKONPLI selon ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "48 heures"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP8",
+    "category": "arvalis_produits",
+    "question": "Le fongicide AKONPLI est-il classé CMR selon la fiche ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "CMR"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP9",
+    "category": "arvalis_produits",
+    "question": "À quels stades le traitement ELATUS PLUS est-il optimal contre la septoriose sur blé ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "2 nœuds"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP10",
+    "category": "arvalis_produits",
+    "question": "Quelles sont les matières actives du REVYSTAR XL sur blé selon ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "Fluxapyroxad",
+        "fentrifluconazole"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AV1",
+    "category": "arvalis_varietes",
+    "question": "Quel est l'obtenteur de la variété de pomme de terre ABBY selon ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_varietes"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "KWS"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AV2",
+    "category": "arvalis_varietes",
+    "question": "En quelle année la variété ABBY a-t-elle été inscrite en France ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_varietes"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "2015"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AV3",
+    "category": "arvalis_varietes",
+    "question": "Quelle est la catégorie de la variété de pomme de terre ABBY selon ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_varietes"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "chair ferme"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AV4",
+    "category": "arvalis_varietes",
+    "question": "Quelle est la couleur de peau de la variété de pomme de terre ABBY ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_varietes"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "rouge"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AV5",
+    "category": "arvalis_varietes",
+    "question": "En quelle année la variété de blé tendre ABRACADABRA a-t-elle été inscrite en France ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_varietes"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "2024"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AF1",
+    "category": "arvalis_fertilisants",
+    "question": "Quelle est la teneur en azote total du fertilisant 15-13-13 selon la fiche ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_fertilisants"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "15"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AF2",
+    "category": "arvalis_fertilisants",
+    "question": "Quelle firme commercialise le fertilisant Agristart Magnum d'après ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_fertilisants"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "Fertinagro"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AF3",
+    "category": "arvalis_fertilisants",
+    "question": "Quelle est la forme du fertilisant Agristart Magnum ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_fertilisants"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "microgranulés"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AF4",
+    "category": "arvalis_fertilisants",
+    "question": "Quelle est la teneur en azote total du fertilisant Agronex selon ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_fertilisants"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "46"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AC1",
+    "category": "arvalis_couverts",
+    "question": "À quelle famille botanique appartient la phacélie selon la fiche ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_couverts"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "Hydrophyllacées"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AC2",
+    "category": "arvalis_couverts",
+    "question": "Quelle est la densité de semis en pur recommandée pour la phacélie selon ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_couverts"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "7 kg"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AC3",
+    "category": "arvalis_couverts",
+    "question": "Le couvert de phacélie est-il adapté avant une culture de colza dans la rotation ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_couverts"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "rotation"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AC4",
+    "category": "arvalis_couverts",
+    "question": "Quel est le nom commercial du mélange alpiste des canaries + fenugrec + phacélie + radis chinois selon ARVALIS ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_couverts"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "AGRO-FIX"
+      ],
       "must_not_contain": []
     }
   },
@@ -611,7 +1472,11 @@
     },
     "answer": {
       "must_contain": [],
-      "must_not_contain": ["AMM", "Autorisé", "arrêté"]
+      "must_not_contain": [
+        "AMM",
+        "Autorisé",
+        "arrêté"
+      ]
     }
   },
   {
@@ -626,7 +1491,68 @@
     },
     "answer": {
       "must_contain": [],
-      "must_not_contain": ["AMM", "Autorisé", "arrêté"]
+      "must_not_contain": [
+        "AMM",
+        "Autorisé",
+        "arrêté"
+      ]
+    }
+  },
+  {
+    "id": "H3",
+    "category": "hors_domaine",
+    "question": "Quel temps fera-t-il demain à Paris ?",
+    "retrieval": {
+      "min_sources": 0,
+      "max_sources": 0,
+      "source_types": [],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [],
+      "must_not_contain": [
+        "AMM",
+        "Autorisé",
+        "arrêté"
+      ]
+    }
+  },
+  {
+    "id": "H4",
+    "category": "hors_domaine",
+    "question": "Raconte-moi une blague.",
+    "retrieval": {
+      "min_sources": 0,
+      "max_sources": 0,
+      "source_types": [],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [],
+      "must_not_contain": [
+        "AMM",
+        "Autorisé",
+        "arrêté"
+      ]
+    }
+  },
+  {
+    "id": "H5",
+    "category": "hors_domaine",
+    "question": "Quelle est la recette de la ratatouille ?",
+    "retrieval": {
+      "min_sources": 0,
+      "max_sources": 0,
+      "source_types": [],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [],
+      "must_not_contain": [
+        "AMM",
+        "Autorisé",
+        "arrêté"
+      ]
     }
   }
 ]

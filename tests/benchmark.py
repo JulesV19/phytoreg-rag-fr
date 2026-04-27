@@ -208,9 +208,10 @@ def main():
         cases = json.load(f)
 
     if args.filter:
-        cases = [c for c in cases if c["category"] == args.filter]
+        # Support exact match ("arvalis_produits") et prefix ("arvalis" → tous les arvalis_*)
+        cases = [c for c in cases if c["category"] == args.filter or c["category"].startswith(args.filter + "_")]
         if not cases:
-            print(f"Aucun cas pour la catégorie '{args.filter}'", file=sys.stderr)
+            print(f"Aucun cas pour le filtre '{args.filter}'", file=sys.stderr)
             sys.exit(1)
 
     print(f"\nInitialisation du RAG…")

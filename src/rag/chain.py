@@ -30,6 +30,12 @@ EMBEDDING_MODEL = "mxbai-embed-large"
 LLM_MODEL = "mistral:7b"
 SPARSE_VECTOR_NAME = "sparse"
 
+_ARVALIS_FILTER = {
+    "must": [{"key": "metadata.source", "match": {
+        "any": ["arvalis_produits", "arvalis_varietes", "arvalis_fertilisants", "arvalis_couverts"]
+    }}]
+}
+
 _OLLAMA_RETRIES = 3
 _OLLAMA_RETRY_DELAY = 1.5   # secondes entre deux tentatives
 
@@ -139,6 +145,21 @@ JSON: {{"intent": "substance_check", "nuisible": null, "culture": null, "produit
 Question: "Quelle est la date d'expiration de l'approbation du 1-naphthylacetamide ?"
 JSON: {{"intent": "substance_check", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": "1-naphthylacetamide", "biocontrole": false, "type_produit": null}}
 
+Question: "Quel est le délai de rentrée du fongicide AKONPLI selon ARVALIS ?"
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "AKONPLI", "amm": null, "substance": null, "biocontrole": false, "type_produit": "fongicide"}}
+
+Question: "Le PROSARO XPERT est-il utilisable en agriculture biologique ?"
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "PROSARO XPERT", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
+
+Question: "Quel est l'obtenteur de la variété de blé tendre APACHE selon ARVALIS ?"
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": "blé tendre", "produit": "APACHE", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
+
+Question: "À quelle famille botanique appartient la phacélie selon ARVALIS ?"
+JSON: {{"intent": "product_list", "nuisible": null, "culture": "phacélie", "produit": null, "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
+
+Question: "Quelle est la teneur en azote du fertilisant AGRISTART MAGNUM ?"
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "AGRISTART MAGNUM", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
+
 Question : {question}
 JSON :"""
 
@@ -208,10 +229,12 @@ def analyze_query_fallback(question: str) -> dict:
     ])
     is_specific_product = bool(amm) or bool(produit)
 
-    # ZNT/DAR/dose d'un produit précis → les valeurs sont dans les chunks AMM, pas dans l'arrêté.
+    # Valeur réglementaire d'un produit précis → les valeurs sont dans les chunks AMM/ARVALIS.
     # On distingue : "ZNT générale" (regulation) vs "ZNT du produit X" (usage_check).
+    # Règle : si un produit est nommé ET qu'on demande une valeur spécifique → usage_check.
     product_value_query = is_regulation and is_specific_product and any(w in q for w in [
         "znt", "dar", "délai avant récolte", "dose retenue", "dose maximale",
+        "rentrée", "cmr", "agriculture biologique", " ab ", "biologique",
     ])
 
     is_phyto = is_specific_product or is_regulation or is_substance or biocontrole or any(w in q for w in [
@@ -323,35 +346,52 @@ def retrieve_by_entities(
                 seen.add(key)
                 all_docs.append(doc)
 
-    # ── Hors domaine → contexte vide, Mistral répond naturellement ───────────
+    # ── Hors domaine → fallback sémantique sur les fiches ARVALIS ────────────
+    # Salutations pures → contexte vide, Mistral répond naturellement.
+    # Questions agricoles non-réglementaires (variétés, fertilisants, couverts…) → tenter ARVALIS.
     if intent == "hors_domaine":
-        return []
+        has_entities = any(entities.get(f) for f in ("produit", "culture", "nuisible", "amm", "substance"))
+        # Rattraper les entités manquées par le LLM : mots en majuscules ≥ 3 lettres
+        # (noms de variétés, fertilisants, couverts qui ne sont pas des produits phyto connus)
+        if not has_entities:
+            has_entities = bool(re.search(r'\b[A-Z][A-Z0-9\-]{2,}\b', question))
+        if not has_entities:
+            return []
+        docs = vs_dense.similarity_search(question, k=k, filter=_ARVALIS_FILTER)
+        add_docs(docs)
+        return all_docs[:k]
 
     # ── Usage check : "Puis-je utiliser X sur Y ?" ───────────────────────────
     # Hybride : le matching exact sur nom produit / numéro AMM est critique.
     elif intent == "usage_check":
+        k_arvalis = 2
+        k_primary = k - k_arvalis
+
+        # 1. Fiches ARVALIS EN PREMIER — slots garantis quelle que soit la taille du pool AMM
+        docs_arv = vs_dense.similarity_search(question, k=k_arvalis, filter=_ARVALIS_FILTER)
+        add_docs(docs_arv)
+
+        # 2. Base AMM nationale
         must_ok = [{"key": "metadata.etat_usage", "match": {"value": "Autorisé"}}]
         if amm:
             must_ok.append({"key": "metadata.numero_amm", "match": {"value": amm}})
         elif produit:
             must_ok.append({"key": "metadata.nom_produit", "match": {"value": produit}})
 
-        docs = vs_hybrid.similarity_search(question, k=k, filter={"must": must_ok})
+        docs = vs_hybrid.similarity_search(question, k=k_primary, filter={"must": must_ok})
         add_docs(docs)
 
         # Fallback : si aucun usage autorisé → chercher tous états (produit retiré)
-        if not all_docs and (amm or produit):
+        if len(all_docs) <= k_arvalis and (amm or produit):
             must_all = [m for m in must_ok if "etat_usage" not in str(m)]
             if must_all:
-                docs = vs_hybrid.similarity_search(question, k=k, filter={"must": must_all})
+                docs = vs_hybrid.similarity_search(question, k=k_primary, filter={"must": must_all})
                 add_docs(docs)
 
-        # Produit nommé → chercher dans note_biocontrole avec la question complète (BM25 + dense).
-        # La question complète inclut des termes comme "EAJ", "jardins", "biologique" qui permettent
-        # de discriminer BELOUKHA GARDEN vs BELOUKHA et LIMOCIDE J vs LIMOCIDE.
+        # 3. Note biocontrôle — BM25 discrimine les variantes de noms (BELOUKHA vs BELOUKHA GARDEN)
         if produit:
             docs_bio = vs_hybrid.similarity_search(
-                question, k=3,
+                question, k=2,
                 filter={"must": [{"key": "metadata.source", "match": {"value": "note_biocontrole"}}]},
             )
             add_docs(docs_bio)
@@ -382,20 +422,26 @@ def retrieve_by_entities(
             parts.append(f"contre {nuisible}")
         search_query = " ".join(parts) if parts else question
 
-        # Quand biocontrôle=True, réserver de la place pour note_biocontrole
-        k_amm = max(2, k // 2) if biocontrole else k
+        k_arvalis = 2
+        k_amm = max(2, (k - k_arvalis) // 2) if biocontrole else k - k_arvalis
+
+        # 1. Fiches ARVALIS EN PREMIER — slots garantis
+        docs_arv = vs_dense.similarity_search(question, k=k_arvalis, filter=_ARVALIS_FILTER)
+        add_docs(docs_arv)
+
+        # 2. Base AMM nationale
         docs = vs_dense.similarity_search(search_query, k=k_amm, filter={"must": must})
         add_docs(docs)
 
         # Fallback : si la query focalisée retourne trop peu, essayer la question complète
-        if len(all_docs) < 2:
+        if len(all_docs) < k_arvalis + 2:
             docs2 = vs_dense.similarity_search(question, k=k_amm, filter={"must": must})
             add_docs(docs2)
 
-        # biocontrôle=True → note DGAL prioritaire (texte réglementaire + produits)
+        # 3. biocontrôle=True → note DGAL (texte réglementaire + produits)
         if biocontrole:
             docs_bio = vs_dense.similarity_search(
-                question, k=k - len(all_docs) + 3,
+                question, k=k - len(all_docs) + 2,
                 filter={"must": [{"key": "metadata.source", "match": {"value": "note_biocontrole"}}]},
             )
             add_docs(docs_bio)
@@ -406,6 +452,16 @@ def retrieve_by_entities(
     elif intent == "regulation":
         filtre_arrete = {"must": [{"key": "metadata.source", "match": {"value": "arrete_2017"}}]}
 
+        # Produit nommé dans une question réglementaire → ARVALIS EN PREMIER (délai de rentrée, CMR, AB…)
+        if produit:
+            docs_arv = vs_dense.similarity_search(question, k=2, filter=_ARVALIS_FILTER)
+            add_docs(docs_arv)
+            docs_bio = vs_hybrid.similarity_search(
+                produit, k=2,
+                filter={"must": [{"key": "metadata.source", "match": {"value": "note_biocontrole"}}]},
+            )
+            add_docs(docs_bio)
+
         # Questions réglementaires sur le biocontrôle (Code rural, liste DGAL…) → note DGAL EN PREMIER
         # Hybride pour que BM25 booste les termes spécifiques ("L.253-6", "macro-organismes"…).
         if biocontrole:
@@ -415,8 +471,7 @@ def retrieve_by_entities(
             )
             add_docs(docs_bio)
 
-        # Double reformulation hybride sur l'arrêté (slots restants après biocontrôle).
-        # docs1 prend k//2 pour laisser de la place à docs2 (reformulation concrète avec valeurs).
+        # Double reformulation hybride sur l'arrêté (slots restants).
         k_arrete = k - len(all_docs)
         if k_arrete > 0:
             docs1 = vs_hybrid.similarity_search(question, k=max(1, k_arrete // 2), filter=filtre_arrete)
@@ -424,14 +479,6 @@ def retrieve_by_entities(
             query_concrete = question + " valeur durée heures article obligation"
             docs2 = vs_hybrid.similarity_search(query_concrete, k=k_arrete, filter=filtre_arrete)
             add_docs(docs2)
-
-        # Produit nommé dans une question réglementaire → chercher dans note_biocontrole par BM25
-        if produit:
-            docs_bio = vs_hybrid.similarity_search(
-                produit, k=3,
-                filter={"must": [{"key": "metadata.source", "match": {"value": "note_biocontrole"}}]},
-            )
-            add_docs(docs_bio)
 
     # ── Substance active CE : approbation européenne ──────────────────────────
     # Hybride : les noms de molécules (Fosétyl-Al, glyphosate) sont des termes
@@ -513,6 +560,10 @@ def format_context(docs: list[Document]) -> str:
         "decision_amm_individuelle": "Décision AMM individuelle",
         "note_biocontrole": "Note DGAL biocontrôle",
         "substances_actives_xlsx": "Base substances actives CE",
+        "arvalis_produits": "Fiche produit ARVALIS",
+        "arvalis_varietes": "Fiche variété ARVALIS",
+        "arvalis_fertilisants": "Fiche fertilisant ARVALIS",
+        "arvalis_couverts": "Fiche couvert ARVALIS",
     }
     for i, doc in enumerate(docs, 1):
         source = doc.metadata.get("source", "inconnu")

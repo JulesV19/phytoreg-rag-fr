@@ -5,6 +5,12 @@ Data/
 # Base vectorielle Qdrant — régénérable via `python -m src.ingestion.ingest`
 qdrant_storage/
 
+# Cache de parsing — régénérable via `python -m src.ingestion.parse_preview`
+parsing_cache/
+
+# Fichiers temporaires
+test.md
+
 # ── macOS ─────────────────────────────────────────────────────────────────────
 .DS_Store
 .AppleDouble
@@ -40,3 +46,4 @@ tests/report_*.json
 tests/debug_parser.py
 tests/debug_retriever.py
 tests/validate_biocontrole_parser.py
+tests/generate_cases.py

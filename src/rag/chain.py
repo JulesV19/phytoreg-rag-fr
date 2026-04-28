@@ -22,6 +22,7 @@ from langchain_ollama import ChatOllama
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 
 from src.embeddings import MxbaiEmbeddings
+from src.reranker import Reranker
 from qdrant_client import QdrantClient
 
 QDRANT_URL = "http://localhost:6333"
@@ -29,6 +30,9 @@ COLLECTION_NAME = "phyto_docs"
 EMBEDDING_MODEL = "mxbai-embed-large"
 LLM_MODEL = "mistral:7b"
 SPARSE_VECTOR_NAME = "sparse"
+
+K_RETRIEVE = 20   # pool candidat avant re-ranking
+K_FINAL = 6       # résultats après re-ranking
 
 _ARVALIS_FILTER = {
     "must": [{"key": "metadata.source", "match": {
@@ -130,7 +134,7 @@ JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "
 Question: "Quels produits de biocontrôle sont autorisés contre les pucerons ?"
 JSON: {{"intent": "product_list", "nuisible": "pucerons", "culture": null, "produit": null, "amm": null, "substance": null, "biocontrole": true, "type_produit": null}}
 
-Question: "Selon le Code rural, quelles sont les catégories de produits de biocontrôle ?"
+Question: "Quelles sont les catégories de produits de biocontrôle ?"
 JSON: {{"intent": "regulation", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": null, "biocontrole": true, "type_produit": null}}
 
 Question: "Quels fongicides sont autorisés sur le colza ?"
@@ -145,20 +149,26 @@ JSON: {{"intent": "substance_check", "nuisible": null, "culture": null, "produit
 Question: "Quelle est la date d'expiration de l'approbation du 1-naphthylacetamide ?"
 JSON: {{"intent": "substance_check", "nuisible": null, "culture": null, "produit": null, "amm": null, "substance": "1-naphthylacetamide", "biocontrole": false, "type_produit": null}}
 
-Question: "Quel est le délai de rentrée du fongicide AKONPLI selon ARVALIS ?"
+Question: "Quel est le délai de rentrée du fongicide AKONPLI ?"
 JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "AKONPLI", "amm": null, "substance": null, "biocontrole": false, "type_produit": "fongicide"}}
 
 Question: "Le PROSARO XPERT est-il utilisable en agriculture biologique ?"
 JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "PROSARO XPERT", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
 
-Question: "Quel est l'obtenteur de la variété de blé tendre APACHE selon ARVALIS ?"
+Question: "Quel est l'obtenteur de la variété de blé tendre APACHE ?"
 JSON: {{"intent": "usage_check", "nuisible": null, "culture": "blé tendre", "produit": "APACHE", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
 
-Question: "À quelle famille botanique appartient la phacélie selon ARVALIS ?"
+Question: "À quelle famille botanique appartient la phacélie ?"
 JSON: {{"intent": "product_list", "nuisible": null, "culture": "phacélie", "produit": null, "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
 
 Question: "Quelle est la teneur en azote du fertilisant AGRISTART MAGNUM ?"
 JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "AGRISTART MAGNUM", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
+
+Question: "Quelle est la densité de semis recommandée pour la phacélie ?"
+JSON: {{"intent": "product_list", "nuisible": null, "culture": "phacélie", "produit": null, "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
+
+Question: "Quelle est la teneur en azote du fertilisant Agronex ?"
+JSON: {{"intent": "usage_check", "nuisible": null, "culture": null, "produit": "AGRONEX", "amm": null, "substance": null, "biocontrole": false, "type_produit": null}}
 
 Question : {question}
 JSON :"""
@@ -241,6 +251,10 @@ def analyze_query_fallback(question: str) -> dict:
         "produit", "traitement", "pulvéris", "pesticide", "phytosanitaire",
         "fongicide", "herbicide", "insecticide", "ravageur", "nuisible",
         "récolte", "usage", "autorisation", "amm",
+        # termes agronomiques ARVALIS (variétés, fertilisants, couverts)
+        "variété", "variete", "obtenteur", "inscription",
+        "fertilisant", "engrais", "azote", "phosphore",
+        "couvert", "semis", "botanique", "densité",
     ])
 
     if is_greeting or not is_phyto:
@@ -364,7 +378,7 @@ def retrieve_by_entities(
     # ── Usage check : "Puis-je utiliser X sur Y ?" ───────────────────────────
     # Hybride : le matching exact sur nom produit / numéro AMM est critique.
     elif intent == "usage_check":
-        k_arvalis = 2
+        k_arvalis = max(2, k // 2)
         k_primary = k - k_arvalis
 
         # 1. Fiches ARVALIS EN PREMIER — slots garantis quelle que soit la taille du pool AMM
@@ -422,7 +436,7 @@ def retrieve_by_entities(
             parts.append(f"contre {nuisible}")
         search_query = " ".join(parts) if parts else question
 
-        k_arvalis = 2
+        k_arvalis = max(2, k // 3)
         k_amm = max(2, (k - k_arvalis) // 2) if biocontrole else k - k_arvalis
 
         # 1. Fiches ARVALIS EN PREMIER — slots garantis
@@ -537,18 +551,24 @@ def retrieve_documents(
     vs_dense: QdrantVectorStore,
     question: str,
     parser_llm: ChatOllama,
-    k: int = 6,
+    reranker: Reranker | None = None,
+    k: int = K_FINAL,
 ) -> list[Document]:
     """
     Point d'entrée du retriever.
     1. Extraction d'entités par LLM (temperature=0, num_ctx court)
     2. Fallback regex si le LLM échoue ou retourne un JSON invalide
-    3. Délègue à retrieve_by_entities()
+    3. Retrieval large (K_RETRIEVE candidats) si reranker présent, k sinon
+    4. Re-ranking cross-encoder → top k
     """
     entities = parse_query_with_llm(question, parser_llm)
     if entities is None:
         entities = analyze_query_fallback(question)
-    return retrieve_by_entities(vs_hybrid, vs_dense, question, entities, k)
+    k_retrieve = K_RETRIEVE if reranker else k
+    candidates = retrieve_by_entities(vs_hybrid, vs_dense, question, entities, k=k_retrieve)
+    if reranker:
+        return reranker.rerank(question, candidates, top_k=k)
+    return candidates
 
 
 def format_context(docs: list[Document]) -> str:
@@ -666,6 +686,7 @@ class PhytoRAG:
         self.vs_hybrid, self.vs_dense = build_vectorstores()
         self.llm = build_llm()
         self.parser_llm = build_parser_llm()
+        self.reranker = Reranker()
         self.chain = build_rag_chain(self.vs_hybrid, self.vs_dense, self.llm, self.parser_llm)
 
     def ask(self, question: str) -> dict:
@@ -677,7 +698,7 @@ class PhytoRAG:
                 "sources": list[dict],
             }
         """
-        docs = retrieve_documents(self.vs_hybrid, self.vs_dense, question, self.parser_llm)
+        docs = retrieve_documents(self.vs_hybrid, self.vs_dense, question, self.parser_llm, self.reranker)
 
         # Guard anti-hallucination : si aucun document trouvé, réponse standard sans LLM.
         # Mistral 7b ignore "Réponds UNIQUEMENT à partir du contexte" quand le contexte
@@ -710,7 +731,7 @@ class PhytoRAG:
 
     def stream(self, question: str):
         """Génère la réponse en streaming."""
-        docs = retrieve_documents(self.vs_hybrid, self.vs_dense, question, self.parser_llm)
+        docs = retrieve_documents(self.vs_hybrid, self.vs_dense, question, self.parser_llm, self.reranker)
 
         # Même guard : pas de LLM si contexte vide
         if not docs:

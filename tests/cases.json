@@ -1024,7 +1024,7 @@
   {
     "id": "AP1",
     "category": "arvalis_produits",
-    "question": "Quelle est la matière active du fongicide ELATUS PLUS selon ARVALIS ?",
+    "question": "Quelle est la matière active du fongicide ELATUS PLUS ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1062,7 +1062,7 @@
   {
     "id": "AP3",
     "category": "arvalis_produits",
-    "question": "Le REVYSTAR XL est-il autorisé contre le piétin verse sur blé selon ARVALIS ?",
+    "question": "Le REVYSTAR XL est-il autorisé contre le piétin verse sur blé ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1081,7 +1081,7 @@
   {
     "id": "AP4",
     "category": "arvalis_produits",
-    "question": "Quelles sont les matières actives du LIBRAX selon la fiche ARVALIS ?",
+    "question": "Quelles sont les matières actives du LIBRAX ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1101,7 +1101,7 @@
   {
     "id": "AP5",
     "category": "arvalis_produits",
-    "question": "Quel est le délai avant récolte (DAR) du PROSARO XPERT sur blé d'après ARVALIS ?",
+    "question": "Quel est le délai avant récolte (DAR) du PROSARO XPERT sur blé ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1139,7 +1139,7 @@
   {
     "id": "AP7",
     "category": "arvalis_produits",
-    "question": "Quel est le délai de rentrée du fongicide AKONPLI selon ARVALIS ?",
+    "question": "Quel est le délai de rentrée du fongicide AKONPLI ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1158,7 +1158,7 @@
   {
     "id": "AP8",
     "category": "arvalis_produits",
-    "question": "Le fongicide AKONPLI est-il classé CMR selon la fiche ARVALIS ?",
+    "question": "Le fongicide AKONPLI est-il classé CMR ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1196,7 +1196,7 @@
   {
     "id": "AP10",
     "category": "arvalis_produits",
-    "question": "Quelles sont les matières actives du REVYSTAR XL sur blé selon ARVALIS ?",
+    "question": "Quelles sont les matières actives du REVYSTAR XL sur blé ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1216,7 +1216,7 @@
   {
     "id": "AV1",
     "category": "arvalis_varietes",
-    "question": "Quel est l'obtenteur de la variété de pomme de terre ABBY selon ARVALIS ?",
+    "question": "Quel est l'obtenteur de la variété de pomme de terre ABBY ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1254,7 +1254,7 @@
   {
     "id": "AV3",
     "category": "arvalis_varietes",
-    "question": "Quelle est la catégorie de la variété de pomme de terre ABBY selon ARVALIS ?",
+    "question": "Quelle est la catégorie de la variété de pomme de terre ABBY ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1311,7 +1311,7 @@
   {
     "id": "AF1",
     "category": "arvalis_fertilisants",
-    "question": "Quelle est la teneur en azote total du fertilisant 15-13-13 selon la fiche ARVALIS ?",
+    "question": "Quelle est la teneur en azote total du fertilisant 15-13-13 ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1330,7 +1330,7 @@
   {
     "id": "AF2",
     "category": "arvalis_fertilisants",
-    "question": "Quelle firme commercialise le fertilisant Agristart Magnum d'après ARVALIS ?",
+    "question": "Quelle firme commercialise le fertilisant Agristart Magnum ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1368,7 +1368,7 @@
   {
     "id": "AF4",
     "category": "arvalis_fertilisants",
-    "question": "Quelle est la teneur en azote total du fertilisant Agronex selon ARVALIS ?",
+    "question": "Quelle est la teneur en azote total du fertilisant Agronex ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1387,7 +1387,7 @@
   {
     "id": "AC1",
     "category": "arvalis_couverts",
-    "question": "À quelle famille botanique appartient la phacélie selon la fiche ARVALIS ?",
+    "question": "À quelle famille botanique appartient la phacélie ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1406,7 +1406,7 @@
   {
     "id": "AC2",
     "category": "arvalis_couverts",
-    "question": "Quelle est la densité de semis en pur recommandée pour la phacélie selon ARVALIS ?",
+    "question": "Quelle est la densité de semis en pur recommandée pour la phacélie ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1444,7 +1444,7 @@
   {
     "id": "AC4",
     "category": "arvalis_couverts",
-    "question": "Quel est le nom commercial du mélange alpiste des canaries + fenugrec + phacélie + radis chinois selon ARVALIS ?",
+    "question": "Quel est le nom commercial du mélange alpiste des canaries + fenugrec + phacélie + radis chinois ?",
     "retrieval": {
       "min_sources": 1,
       "max_sources": null,
@@ -1456,6 +1456,101 @@
     "answer": {
       "must_contain": [
         "AGRO-FIX"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP11",
+    "category": "arvalis_produits",
+    "question": "La ZNT du fongicide AKONPLI est-elle de 5 mètres ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "5 mètres"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AP12",
+    "category": "arvalis_produits",
+    "question": "Le fongicide AKONPLI est-il utilisable en agriculture biologique ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_produits"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "Non utilisable en AB"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AV6",
+    "category": "arvalis_varietes",
+    "question": "Qui est le mainteneur de la variété de pomme de terre ABBY ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_varietes"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "VAN RIJN"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AF5",
+    "category": "arvalis_fertilisants",
+    "question": "Le fertilisant 15-13-13 est-il sous forme solide ou liquide ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_fertilisants"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "Solide"
+      ],
+      "must_not_contain": []
+    }
+  },
+  {
+    "id": "AC5",
+    "category": "arvalis_couverts",
+    "question": "Quelles espèces composent le couvert AGRO-FIX 2 ?",
+    "retrieval": {
+      "min_sources": 1,
+      "max_sources": null,
+      "source_types": [
+        "arvalis_couverts"
+      ],
+      "amm": null
+    },
+    "answer": {
+      "must_contain": [
+        "phacélie"
       ],
       "must_not_contain": []
     }

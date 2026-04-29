@@ -114,13 +114,16 @@ def run_case(rag: PhytoRAG, case: dict) -> dict:
     retrieval_checks = check_retrieval(result, case["retrieval"])
     answer_checks = check_answer(result["answer"], case["answer"])
     all_checks = {**retrieval_checks, **answer_checks}
-    passed = all(c["passed"] for c in all_checks.values())
+
+    answer_passed = all(c["passed"] for c in answer_checks.values()) if answer_checks else True
+    retrieval_passed = all(c["passed"] for c in retrieval_checks.values()) if retrieval_checks else True
 
     return {
         "id": case["id"],
         "category": case["category"],
         "question": question,
-        "passed": passed,
+        "passed": answer_passed,
+        "retrieval_passed": retrieval_passed,
         "checks": all_checks,
         "answer": result["answer"],
         "sources": result["sources"],
@@ -132,50 +135,67 @@ def run_case(rag: PhytoRAG, case: dict) -> dict:
 def compute_stats(results: list[dict]) -> dict:
     total = len(results)
     passed = sum(1 for r in results if r["passed"])
-    failed = total - passed
+    retrieval_ok = sum(1 for r in results if r.get("retrieval_passed", True))
+    both_ok = sum(1 for r in results if r["passed"] and r.get("retrieval_passed", True))
 
     by_category: dict[str, dict] = {}
     for r in results:
         cat = r["category"]
         if cat not in by_category:
-            by_category[cat] = {"total": 0, "passed": 0, "failed": 0}
+            by_category[cat] = {"total": 0, "passed": 0, "failed": 0, "retrieval_passed": 0}
         by_category[cat]["total"] += 1
         if r["passed"]:
             by_category[cat]["passed"] += 1
         else:
             by_category[cat]["failed"] += 1
+        if r.get("retrieval_passed", True):
+            by_category[cat]["retrieval_passed"] += 1
 
     failed_ids = [r["id"] for r in results if not r["passed"]]
+    retrieval_failed_ids = [r["id"] for r in results if not r.get("retrieval_passed", True)]
 
     return {
         "total": total,
         "passed": passed,
-        "failed": failed,
+        "failed": total - passed,
         "pass_rate": round(passed / total, 3) if total else 0,
+        "retrieval_pass_rate": round(retrieval_ok / total, 3) if total else 0,
+        "both_pass_rate": round(both_ok / total, 3) if total else 0,
         "by_category": by_category,
         "failed_ids": failed_ids,
+        "retrieval_failed_ids": retrieval_failed_ids,
     }
 
 
 # ─── Affichage terminal ───────────────────────────────────────────────────────
 
-def print_progress(case_id: str, passed: bool, n: int, total: int) -> None:
-    symbol = "✓" if passed else "✗"
+def print_progress(case_id: str, passed: bool, retrieval_passed: bool, n: int, total: int) -> None:
+    if passed and retrieval_passed:
+        symbol = "✓"
+    elif passed:
+        symbol = "~"  # réponse correcte, mauvaise source
+    else:
+        symbol = "✗"
     print(f"  [{n:02d}/{total}] {symbol} {case_id}", flush=True)
 
 
 def print_summary(stats: dict) -> None:
     print()
-    print("─" * 50)
-    print(f"  Résultat : {stats['passed']}/{stats['total']} ({stats['pass_rate']*100:.1f}%)")
+    print("─" * 55)
+    print(f"  Réponses  : {stats['passed']}/{stats['total']} ({stats['pass_rate']*100:.1f}%)")
+    print(f"  Retrieval : {stats['total'] - len(stats['retrieval_failed_ids'])}/{stats['total']} ({stats['retrieval_pass_rate']*100:.1f}%)")
+    print(f"  Les deux  : {round(stats['both_pass_rate'] * stats['total'])}/{stats['total']} ({stats['both_pass_rate']*100:.1f}%)")
     print()
     for cat, s in stats["by_category"].items():
+        ret_ok = s.get("retrieval_passed", s["total"])
         bar = "✓" * s["passed"] + "✗" * s["failed"]
-        print(f"  {cat:<20} {s['passed']}/{s['total']}  {bar}")
+        print(f"  {cat:<24} rép {s['passed']}/{s['total']}  src {ret_ok}/{s['total']}  {bar}")
     if stats["failed_ids"]:
         print()
-        print(f"  Cas échoués : {', '.join(stats['failed_ids'])}")
-    print("─" * 50)
+        print(f"  Réponses échouées  : {', '.join(stats['failed_ids'])}")
+    if stats["retrieval_failed_ids"]:
+        print(f"  Retrieval échoués  : {', '.join(stats['retrieval_failed_ids'])}")
+    print("─" * 55)
 
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
@@ -222,7 +242,7 @@ def main():
     for i, case in enumerate(cases, 1):
         result = run_case(rag, case)
         results.append(result)
-        print_progress(case["id"], result["passed"], i, len(cases))
+        print_progress(case["id"], result["passed"], result.get("retrieval_passed", True), i, len(cases))
 
     stats = compute_stats(results)
     print_summary(stats)

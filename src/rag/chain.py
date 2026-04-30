@@ -11,15 +11,20 @@ Architecture :
 """
 
 import json
+import os
 import re
 import time
 
+from dotenv import load_dotenv
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableLambda, RunnablePassthrough
+from langchain_mistralai import ChatMistralAI
 from langchain_ollama import ChatOllama
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
+
+load_dotenv()
 
 from src.embeddings import MxbaiEmbeddings
 from src.reranker import Reranker
@@ -29,6 +34,7 @@ QDRANT_URL = "http://localhost:6333"
 COLLECTION_NAME = "phyto_docs"
 EMBEDDING_MODEL = "mxbai-embed-large"
 LLM_MODEL = "mistral:7b"
+MISTRAL_API_MODEL = "mistral-small-latest"
 SPARSE_VECTOR_NAME = "sparse"
 
 K_RETRIEVE = 20   # pool candidat avant re-ranking
@@ -42,12 +48,18 @@ _ARVALIS_FILTER = {
 
 _OLLAMA_RETRIES = 3
 _OLLAMA_RETRY_DELAY = 1.5   # secondes entre deux tentatives
+_RATE_LIMIT_DELAY = 60      # secondes d'attente sur erreur 429
+
+
+def _is_rate_limit(exc: Exception) -> bool:
+    msg = str(exc).lower()
+    return "429" in msg or "rate limit" in msg or "too many requests" in msg
 
 
 def _call_with_retry(fn, retries: int = _OLLAMA_RETRIES, delay: float = _OLLAMA_RETRY_DELAY):
     """
     Exécute fn() et réessaie jusqu'à `retries` fois en cas d'exception.
-    Couvre les erreurs transitoires d'Ollama : connexion refusée, timeout, surcharge.
+    Couvre les erreurs transitoires d'Ollama et les rate limits de l'API Mistral.
     Lève la dernière exception si toutes les tentatives échouent.
     """
     last_exc: Exception | None = None
@@ -57,7 +69,8 @@ def _call_with_retry(fn, retries: int = _OLLAMA_RETRIES, delay: float = _OLLAMA_
         except Exception as exc:
             last_exc = exc
             if attempt < retries - 1:
-                time.sleep(delay)
+                wait = _RATE_LIMIT_DELAY if _is_rate_limit(exc) else delay
+                time.sleep(wait)
     raise last_exc
 
 # ─── Prompt système ───────────────────────────────────────────────────────────
@@ -629,8 +642,14 @@ def build_vectorstores() -> tuple[QdrantVectorStore, QdrantVectorStore]:
     return vs_hybrid, vs_dense
 
 
-def build_llm() -> ChatOllama:
+def build_llm(backend: str = "local"):
     """LLM de génération : température basse pour des réponses factuelles."""
+    if backend == "api":
+        return ChatMistralAI(
+            model=MISTRAL_API_MODEL,
+            temperature=0.1,
+            api_key=os.environ["MISTRAL_API_KEY"],
+        )
     return ChatOllama(
         model=LLM_MODEL,
         temperature=0.1,
@@ -652,7 +671,7 @@ def build_parser_llm() -> ChatOllama:
 def build_rag_chain(
     vs_hybrid: QdrantVectorStore,
     vs_dense: QdrantVectorStore,
-    llm: ChatOllama,
+    llm,
     parser_llm: ChatOllama,
 ):
     prompt = ChatPromptTemplate.from_messages([
@@ -682,9 +701,9 @@ def build_rag_chain(
 class PhytoRAG:
     """Interface haut niveau pour interroger le RAG phytosanitaire."""
 
-    def __init__(self):
+    def __init__(self, backend: str = "local"):
         self.vs_hybrid, self.vs_dense = build_vectorstores()
-        self.llm = build_llm()
+        self.llm = build_llm(backend)
         self.parser_llm = build_parser_llm()
         self.reranker = Reranker()
         self.chain = build_rag_chain(self.vs_hybrid, self.vs_dense, self.llm, self.parser_llm)

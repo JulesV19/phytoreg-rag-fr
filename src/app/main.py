@@ -84,14 +84,14 @@ def print_sources(sources: list[dict]):
     console.print(table)
 
 
-def run_cli(stream: bool = True):
+def run_cli(stream: bool = True, backend: str = "local"):
     console.print(BANNER, style="bold green")
     console.print(Markdown(HELP_TEXT))
 
     # Initialisation du RAG
     with console.status("[bold cyan]Connexion à Qdrant et chargement du modèle...[/bold cyan]"):
         try:
-            rag = PhytoRAG()
+            rag = PhytoRAG(backend=backend)
         except Exception as e:
             console.print(f"[red]Erreur d'initialisation : {e}[/red]")
             console.print("[yellow]Vérifiez que Qdrant tourne (docker compose up -d) "
@@ -152,5 +152,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Désactive le streaming (affiche réponse complète + sources)",
     )
+    parser.add_argument(
+        "--llm",
+        choices=["local", "api"],
+        default="local",
+        help="Backend LLM pour la génération : local (Ollama 7B) ou api (Mistral API)",
+    )
     args = parser.parse_args()
-    run_cli(stream=not args.no_stream)
+    run_cli(stream=not args.no_stream, backend=args.llm)

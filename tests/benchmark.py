@@ -13,6 +13,7 @@ Le rapport JSON contient :
 import argparse
 import json
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -217,6 +218,12 @@ def main():
         default=None,
         help="Ne lancer que les cas d'une catégorie (ex: regulation, amm_xml)",
     )
+    parser.add_argument(
+        "--llm",
+        choices=["local", "api"],
+        default="local",
+        help="Backend LLM pour la génération : local (Ollama 7B) ou api (Mistral API)",
+    )
     args = parser.parse_args()
 
     cases_path = Path(args.cases)
@@ -234,12 +241,16 @@ def main():
             print(f"Aucun cas pour le filtre '{args.filter}'", file=sys.stderr)
             sys.exit(1)
 
-    print(f"\nInitialisation du RAG…")
-    rag = PhytoRAG()
+    print(f"\nInitialisation du RAG… (backend: {args.llm})")
+    rag = PhytoRAG(backend=args.llm)
     print(f"Lancement de {len(cases)} cas de test\n")
+
+    api_delay = 30 if args.llm == "api" else 0
 
     results = []
     for i, case in enumerate(cases, 1):
+        if api_delay and i > 1:
+            time.sleep(api_delay)
         result = run_case(rag, case)
         results.append(result)
         print_progress(case["id"], result["passed"], result.get("retrieval_passed", True), i, len(cases))
